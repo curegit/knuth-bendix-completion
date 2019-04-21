@@ -3,3 +3,4 @@
 #use "util.ml";;
 #use "trs.ml";;
 
+open TermRewritingSystem;;
