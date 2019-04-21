@@ -12,13 +12,14 @@ module type TermRewritingSystemSignature = sig
   val collate : term -> term -> substitution list option
   val rewrite : (term * term) list -> term -> term option
 (*
+  val lireduce : (term * term) list -> term -> term option
   val linorm : (term * term) list -> term -> term
-  val liredux : (term * term) list -> term -> term option
+  val loreduce : (term * term) list -> term -> term option
   val lonorm : (term * term) list -> term -> term
-  val loredux : (term * term) list -> term -> term option
-  val ponorm : (term * term) list -> term -> term
-  val poredux : (term * term) list -> term -> term option
 *)
+  val poreduce : (term * term) list -> term -> term option
+  val ponorm : (term * term) list -> term -> term
+
 (*
   val parseterm : string -> term
   val printterm : term -> string
@@ -71,12 +72,28 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                            | Some s -> Some (subst s r)
                                            | None -> rewrite rs t
 (*
+  let rec lireduce
   let rec linorm
-  let rec liredux
+  let rec loreduce
   let rec lonorm
-  let rec loredux
-  let rec ponorm
-  let rec poredux
 *)
-end
+  let rec poreduce rs = function
+                        | Variable xi -> rewrite rs (Variable xi)
+                        | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
+                                              | Some t -> Some t
+                                              | None -> match poreducelist rs ts with
+                                                        | Some ts' -> Some (Function (f, ts'))
+                                                        | None -> None
+  and poreducelist rs = function
+                        | [] -> None
+                        | t :: ts -> match (poreduce rs t, poreducelist rs ts) with
+                                     | (Some t', Some ts') -> Some (t' :: ts')
+                                     | (Some t', None) -> Some (t' :: ts)
+                                     | (None, Some ts') -> Some (t :: ts')
+                                     | (None, None) -> None
 
+  let rec ponorm rs t = match poreduce rs t with
+                        | Some t' -> ponorm rs t'
+                        | None -> t
+
+end
