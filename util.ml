@@ -27,4 +27,3 @@ module TermRewritingSystemUtility = struct
                   | x :: xs -> f x :: map f xs
 
 end
-
