@@ -14,12 +14,11 @@ module type TermRewritingSystemSignature = sig
 (*
   val lireduce : (term * term) list -> term -> term option
   val linorm : (term * term) list -> term -> term
+*)
   val loreduce : (term * term) list -> term -> term option
   val lonorm : (term * term) list -> term -> term
-*)
   val poreduce : (term * term) list -> term -> term option
   val ponorm : (term * term) list -> term -> term
-
 (*
   val parseterm : string -> term
   val printterm : term -> string
@@ -74,9 +73,26 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 (*
   let rec lireduce
   let rec linorm
-  let rec loreduce
-  let rec lonorm
 *)
+  let rec loreduce rs = function
+                        | Variable xi -> rewrite rs (Variable xi)
+                        | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
+                                              | Some t -> Some t
+                                              | None -> match loreducelist rs ts with
+                                                        | Some ts' -> Some (Function (f, ts'))
+                                                        | None -> None
+  and loreducelist rs = function
+                        | [] -> None
+                        | t :: ts -> match loreduce rs t with
+                                     | Some t' -> Some (t' :: ts)
+                                     | None -> match loreducelist rs ts with
+                                               | Some ts' -> Some (t :: ts')
+                                               | None -> None
+
+  let rec lonorm rs t = match loreduce rs t with
+                        | Some t' -> lonorm rs t'
+                        | None -> t
+
   let rec poreduce rs = function
                         | Variable xi -> rewrite rs (Variable xi)
                         | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
