@@ -6,6 +6,8 @@ module type TermRewritingSystemSignature = sig
   type rule = (term * term)
   type substitution = ((string * int) * term)
 
+  exception ParseError
+
   val depth : term -> int
   val vars : term -> (string * int) list
   val subst : substitution list -> term -> term
@@ -19,19 +21,29 @@ module type TermRewritingSystemSignature = sig
   val lonorm : (term * term) list -> term -> term
   val poreduce : (term * term) list -> term -> term option
   val ponorm : (term * term) list -> term -> term
+
+  val parse : string -> term
+  val parsevar : string -> term
 (*
-  val parseterm : string -> term
+  val parsefun : string -> term
+*)
+(*
   val printterm : term -> string
 *)
 end
 
 module TermRewritingSystem : TermRewritingSystemSignature = struct
 
+  open List
+  open Char
+  open String
   open TermRewritingSystemUtility
 
   type term = Function of (string * term list) | Variable of (string * int)
   type rule = (term * term)
   type substitution = ((string * int) * term)
+
+  exception ParseError
 
   let rec depth = function
                   | Variable xi -> 1
@@ -111,5 +123,45 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let rec ponorm rs t = match poreduce rs t with
                         | Some t' -> ponorm rs t'
                         | None -> t
+
+  let number chara = let c = code chara in 48 <= c && c <= 57
+
+  let large chara = let c = code chara in 65 <= c && c <= 90
+
+  let small chara = let c = code chara in 97 <= c && c <= 122
+
+  let alphabet chara = number chara || large chara || small chara
+
+  let rec parsevarsub = function
+                        | "" -> ""
+                        | str -> match (get str 0, parsevarsub (sub str 1 (length str - 1))) with
+                                 | (' ', "") -> ""
+                                 | (chara, str') -> if alphabet chara then sub str 0 1 ^ str' else raise ParseError
+
+  let rec parsevar = function
+                     | "" -> raise ParseError
+                     | exp -> match get exp 0 with
+                              | ' ' -> parsevar (sub exp 1 (length exp - 1))
+                              | chara -> Variable (parsevarsub exp, 0)
+
+  let rec parse = function
+                      | "" -> raise ParseError
+                      | exp -> match get exp 0 with
+                               | ' ' -> parse (sub exp 1 (length exp - 1))
+                               | head -> if number head || large head then parsefun "" false exp else if small head then parsevar exp else raise ParseError
+  and parsefun sym flag = function
+                              | "" -> Function (sym, [])
+                              | exp -> match get exp 0 with
+                                       | '(' -> Function (sym, parseargs "" [] false (sub exp 1 (length exp - 1)))
+                                       | ' ' -> parsefun sym true (sub exp 1 (length exp - 1))
+                                       | chara -> if flag then raise ParseError else if alphabet chara then parsefun (sym ^ sub exp 0 1) flag (sub exp 1 (length exp - 1)) else raise ParseError
+  and parseargs exp terms flag = function
+                                     | "" -> if flag then rev terms else raise ParseError
+                                     | args -> match get args 0 with
+                                               | ' ' -> parseargs (exp ^ sub args 0 1) terms flag (sub args 1 (length args - 1))
+                                               | ')' -> if flag then raise ParseError else parseargs "" (parse exp :: terms) true (sub args 1 (length args - 1))
+                                               | ',' -> if flag then raise ParseError else parseargs "" (parse exp :: terms) flag (sub args 1 (length args - 1))
+                                               | chara -> if flag then raise ParseError else parseargs (exp ^ sub args 0 1) terms flag (sub args 1 (length args - 1))
+
 
 end
