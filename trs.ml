@@ -62,9 +62,9 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                  | t :: ts -> union (vars t) (varslist ts)
 
   let rec subst ss = function
-                     | Variable xi -> (match find xi ss with
-                                       | Some s -> s
-                                       | None -> Variable xi)
+                     | Variable xi as t -> (match find xi ss with
+                                            | Some s -> s
+                                            | None -> t)
                      | Function (f, ts) -> Function (f, map (subst ss) ts)
 
   let rec collate l r = match l with
@@ -76,8 +76,8 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                           | ([], []) -> Some []
                           | (t :: ts, t' :: ts') -> (match (collate t t', collatelist ts ts') with
                                                      | (Some s, Some s') -> append s s'
-                                                     | (_, _) -> None)
-                          | (_, _) -> None
+                                                     | _ -> None)
+                          | _ -> None
 
   let rec rewrite rs t = match rs with
                          | [] -> None
@@ -114,12 +114,12 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                       | Function (f, ts) -> linormtop rs rs (Function (f, map (linorm rs) ts))
 
   let rec loreduce rs = function
-                        | Variable xi -> rewrite rs (Variable xi)
-                        | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
-                                              | Some t -> Some t
-                                              | None -> match loreducelist rs ts with
-                                                        | Some ts' -> Some (Function (f, ts'))
-                                                        | None -> None
+                        | Variable xi as t -> rewrite rs t
+                        | Function (f, ts) as t -> match rewrite rs t with
+                                                   | Some t' -> Some t'
+                                                   | None -> match loreducelist rs ts with
+                                                             | Some ts' -> Some (Function (f, ts'))
+                                                             | None -> None
   and loreducelist rs = function
                         | [] -> None
                         | t :: ts -> match loreduce rs t with
@@ -133,12 +133,12 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                         | None -> t
 
   let rec poreduce rs = function
-                        | Variable xi -> rewrite rs (Variable xi)
-                        | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
-                                              | Some t -> Some t
-                                              | None -> match poreducelist rs ts with
-                                                        | Some ts' -> Some (Function (f, ts'))
-                                                        | None -> None
+                        | Variable xi as t -> rewrite rs t
+                        | Function (f, ts) as t -> match rewrite rs t with
+                                                   | Some t' -> Some t'
+                                                   | None -> match poreducelist rs ts with
+                                                             | Some ts' -> Some (Function (f, ts'))
+                                                             | None -> None
   and poreducelist rs = function
                         | [] -> None
                         | t :: ts -> match (poreduce rs t, poreducelist rs ts) with
