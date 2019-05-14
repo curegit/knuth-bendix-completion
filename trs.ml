@@ -21,6 +21,12 @@ module type TermRewritingSystemSignature = sig
   val poreduce : (term * term) list -> term -> term option
   val ponorm : (term * term) list -> term -> term
 
+  val var : string -> term
+  val const : string -> term
+  val func : string -> string list -> term
+  val call : string -> term list -> term
+  val nest : string -> int -> term -> term
+
   val parseterm : string -> term
   val parsevar : string -> term
   val parsefun : string -> term
@@ -144,6 +150,16 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let rec ponorm rs t = match poreduce rs t with
                         | Some t' -> ponorm rs t'
                         | None -> t
+
+  let var x = Variable (x, 0)
+
+  let const c = Function (c, [])
+
+  let func f xs = Function (f, map var xs)
+
+  let call f ts = Function (f, ts)
+
+  let rec nest f n t = if n > 0 then Function (f, [nest f (n - 1) t]) else t
 
   let number chara = let c = code chara in 48 <= c && c <= 57
 
