@@ -22,11 +22,9 @@ module type TermRewritingSystemSignature = sig
   val poreduce : (term * term) list -> term -> term option
   val ponorm : (term * term) list -> term -> term
 
-  val parse : string -> term
+  val parseterm : string -> term
   val parsevar : string -> term
-(*
   val parsefun : string -> term
-*)
 (*
   val printterm : term -> string
 *)
@@ -34,7 +32,6 @@ end
 
 module TermRewritingSystem : TermRewritingSystemSignature = struct
 
-  open List
   open Char
   open String
   open TermRewritingSystemUtility
@@ -132,36 +129,67 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 
   let alphabet chara = number chara || large chara || small chara
 
-  let rec parsevarsub = function
+  let rec parsevarsym = function
                         | "" -> ""
-                        | str -> match (get str 0, parsevarsub (sub str 1 (length str - 1))) with
+                        | str -> match (get str 0, parsevarsym (sub str 1 (length str - 1))) with
                                  | (' ', "") -> ""
-                                 | (chara, str') -> if alphabet chara then sub str 0 1 ^ str' else raise ParseError
+                                 | (chara, str') when alphabet chara -> sub str 0 1 ^ str'
+                                 | _ -> raise ParseError
+
+  let rec parsefunsym = function
+                        | "" -> ""
+                        | str -> match get str 0 with
+                                 | '(' -> ""
+                                 | ' ' -> (match parsefunsym (sub str 1 (length str - 1)) with
+                                           | "" -> ""
+                                           | _ -> raise ParseError)
+                                 | chara when alphabet chara -> sub str 0 1 ^ parsefunsym (sub str 1 (length str - 1))
+                                 | _ -> raise ParseError
+
+  let rec parseargexpssub = function
+                            | "" -> fun n -> if n = 0 then ("", []) else raise ParseError
+                            | str -> fun n -> match (n, get str 0) with
+                                              | (0, ' ') -> (match parseargexpssub (sub str 1 (length str - 1)) 0 with
+                                                             | ("", exps) -> ("", exps)
+                                                             | _ -> raise ParseError)
+                                              | (0, '(') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
+                                              | (0, chara) -> raise ParseError
+                                              | (1, ')') -> (match parseargexpssub (sub str 1 (length str - 1)) 0 with
+                                                            | ("", []) -> ("", [])
+                                                            | (str', exps) -> raise ParseError)
+                                              | (1, ',') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
+                                              | (n, '(') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n + 1) in (sub str 0 1 ^ str', exps)
+                                              | (n, ')') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n - 1) in (sub str 0 1 ^ str', exps)
+                                              | (n, chara) -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) n in (sub str 0 1 ^ str', exps)
+
+  let parseargexps exp = match parseargexpssub exp 0 with
+                         | ("", exps) -> exps
+                         | (str, exps) -> raise ParseError
 
   let rec parsevar = function
                      | "" -> raise ParseError
                      | exp -> match get exp 0 with
                               | ' ' -> parsevar (sub exp 1 (length exp - 1))
-                              | chara -> Variable (parsevarsub exp, 0)
+                              | chara -> Variable (parsevarsym exp, 0)
 
-  let rec parse = function
-                      | "" -> raise ParseError
-                      | exp -> match get exp 0 with
-                               | ' ' -> parse (sub exp 1 (length exp - 1))
-                               | head -> if number head || large head then parsefun "" false exp else if small head then parsevar exp else raise ParseError
-  and parsefun sym flag = function
-                              | "" -> Function (sym, [])
-                              | exp -> match get exp 0 with
-                                       | '(' -> Function (sym, parseargs "" [] false (sub exp 1 (length exp - 1)))
-                                       | ' ' -> parsefun sym true (sub exp 1 (length exp - 1))
-                                       | chara -> if flag then raise ParseError else if alphabet chara then parsefun (sym ^ sub exp 0 1) flag (sub exp 1 (length exp - 1)) else raise ParseError
-  and parseargs exp terms flag = function
-                                     | "" -> if flag then rev terms else raise ParseError
-                                     | args -> match get args 0 with
-                                               | ' ' -> parseargs (exp ^ sub args 0 1) terms flag (sub args 1 (length args - 1))
-                                               | ')' -> if flag then raise ParseError else parseargs "" (parse exp :: terms) true (sub args 1 (length args - 1))
-                                               | ',' -> if flag then raise ParseError else parseargs "" (parse exp :: terms) flag (sub args 1 (length args - 1))
-                                               | chara -> if flag then raise ParseError else parseargs (exp ^ sub args 0 1) terms flag (sub args 1 (length args - 1))
-
+  let rec parsefun = function
+                     | "" -> raise ParseError
+                     | exp -> match get exp 0 with
+                              | ' ' -> parsefun (sub exp 1 (length exp - 1))
+                              | chara -> Function (parsefunsym exp, parseargs exp)
+  and parseargs = function
+                  | "" -> []
+                  | exp -> match get exp 0 with
+                           | ' ' -> parseargs (sub exp 1 (length exp - 1))
+                           | '(' -> map parseterm (parseargexps exp)
+                           | chara -> parseargs (sub exp 1 (length exp - 1))
+  and parseterm = function
+                  | "" -> raise ParseError
+                  | exp -> match get exp 0 with
+                           | ' ' -> parseterm (sub exp 1 (length exp - 1))
+                           | chara when small chara -> parsevar exp
+                           | chara when large chara -> parsefun exp
+                           | chara when number chara -> parsefun exp
+                           | chara -> raise ParseError
 
 end
