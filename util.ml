@@ -2,13 +2,21 @@
 
 module TermRewritingSystemUtility = struct
 
-  let rec member x = function
-                     | [] -> false
-                     | y :: ys -> if x = y then true else member x ys
+  let rec map f = function
+                  | [] -> []
+                  | x :: xs -> f x :: map f xs
 
-  let rec union xs = function
-                     | [] -> xs
-                     | y :: ys -> if member y xs then xs else y :: xs
+  let rec filter p = function
+                     | [] -> []
+                     | x :: xs -> if p x then x :: filter p xs else filter p xs
+
+  let rec notwhere p = function
+                       | [] -> []
+                       | x :: xs -> if p x then notwhere p xs else x :: notwhere p xs
+
+  let rec member = function
+                   | [] -> fun x -> false
+                   | y :: ys -> fun x -> if x = y then true else member ys x
 
   let rec find key = function
                      | [] -> None
@@ -22,8 +30,6 @@ module TermRewritingSystemUtility = struct
                                                   | Some zs -> Some ((k, v) :: zs)
                                                   | None -> None
 
-  let rec map f = function
-                  | [] -> []
-                  | x :: xs -> f x :: map f xs
+  let union xs ys = xs @ notwhere (member xs) ys
 
 end
