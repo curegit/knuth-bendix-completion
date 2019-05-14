@@ -13,10 +13,9 @@ module type TermRewritingSystemSignature = sig
   val subst : substitution list -> term -> term
   val collate : term -> term -> substitution list option
   val rewrite : (term * term) list -> term -> term option
-(*
+
   val lireduce : (term * term) list -> term -> term option
   val linorm : (term * term) list -> term -> term
-*)
   val loreduce : (term * term) list -> term -> term option
   val lonorm : (term * term) list -> term -> term
   val poreduce : (term * term) list -> term -> term option
@@ -79,10 +78,35 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                          | (l, r) :: rs -> match collate l t with
                                            | Some s -> Some (subst s r)
                                            | None -> rewrite rs t
-(*
-  let rec lireduce
-  let rec linorm
-*)
+
+  let rec lireduce rs = function
+                        | Variable xi as t -> rewrite rs t
+                        | Function (f, ts) as t -> match lireducelist rs ts with
+                                                   | Some ts' -> Some (Function (f, ts'))
+                                                   | None -> match rewrite rs t with
+                                                             | Some t' -> Some t'
+                                                             | None -> None
+  and lireducelist rs = function
+                        | [] -> None
+                        | t :: ts -> match lireduce rs t with
+                                     | Some t' -> Some (t' :: ts)
+                                     | None -> match lireducelist rs ts with
+                                               | Some ts' -> Some (t :: ts')
+                                               | None -> None
+
+  let rec linormtop rs = function
+                         | [] -> fun t -> t
+                         | (l, r) :: rs' -> fun t -> match collate l t with
+                                                     | Some s -> linormsubst rs s r
+                                                     | None -> linormtop rs rs' t
+  and linormsubst rs s = function
+                         | Variable xi as t -> subst s t
+                         | Function (f, ts) -> linormtop rs rs (Function (f, map (linormsubst rs s) ts))
+
+  let rec linorm rs = function
+                      | Variable xi as t -> linormtop rs rs t
+                      | Function (f, ts) -> linormtop rs rs (Function (f, map (linorm rs) ts))
+
   let rec loreduce rs = function
                         | Variable xi -> rewrite rs (Variable xi)
                         | Function (f, ts) -> match rewrite rs (Function (f, ts)) with
