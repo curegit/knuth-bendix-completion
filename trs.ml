@@ -195,8 +195,8 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                               | (0, '(') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
                                               | (0, chara) -> raise ParseError
                                               | (1, ')') -> (match parseargexpssub (sub str 1 (length str - 1)) 0 with
-                                                            | ("", []) -> ("", [])
-                                                            | (str', exps) -> raise ParseError)
+                                                             | ("", []) -> ("", [])
+                                                             | (str', exps) -> raise ParseError)
                                               | (1, ',') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
                                               | (n, '(') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n + 1) in (sub str 0 1 ^ str', exps)
                                               | (n, ')') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n - 1) in (sub str 0 1 ^ str', exps)
