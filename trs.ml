@@ -11,7 +11,7 @@ module type TermRewritingSystemSignature = sig
 
   exception ParseError
 
-  val depth : term -> int
+  val height : term -> int
   val vars : term -> varsym list
   val funs : term -> funsym list
   val subst : substitution list -> term -> term
@@ -56,12 +56,14 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 
   exception ParseError
 
-  let rec depth = function
+  let rec height = function
+                   | Variable xi -> 1
+                   | Function (f, ts) -> 1 + heightlist ts
+  and heightlist = function
+                   | [] -> 0
+                   | t :: ts -> max (height t) (heightlist ts)
                   | Variable xi -> 1
-                  | Function (f, ts) -> 1 + depthlist ts
-  and depthlist = function
                   | [] -> 0
-                  | t :: ts -> max (depth t) (depthlist ts)
 
   let rec vars = function
                  | Variable xi -> [xi]
