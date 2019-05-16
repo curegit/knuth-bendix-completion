@@ -2,24 +2,27 @@
 
 module type TermRewritingSystemSignature = sig
 
-  type term = Function of (string * term list) | Variable of (string * int)
-  type rule = (term * term)
-  type substitution = ((string * int) * term)
+  type funsym = string
+  type varsym = string * int
+  type term = Variable of varsym | Function of (funsym * term list)
+  type rule = term * term
+  type equation = term * term
+  type substitution = varsym * term
 
   exception ParseError
 
   val depth : term -> int
-  val vars : term -> (string * int) list
+  val vars : term -> varsym list
   val subst : substitution list -> term -> term
   val collate : term -> term -> substitution list option
-  val rewrite : (term * term) list -> term -> term option
+  val rewrite : rule list -> term -> term option
 
-  val lireduce : (term * term) list -> term -> term option
-  val linorm : (term * term) list -> term -> term
-  val loreduce : (term * term) list -> term -> term option
-  val lonorm : (term * term) list -> term -> term
-  val poreduce : (term * term) list -> term -> term option
-  val ponorm : (term * term) list -> term -> term
+  val lireduce : rule list -> term -> term option
+  val linorm : rule list -> term -> term
+  val loreduce : rule list -> term -> term option
+  val lonorm : rule list -> term -> term
+  val poreduce : rule list -> term -> term option
+  val ponorm : rule list -> term -> term
 
   val var : string -> term
   val const : string -> term
@@ -41,9 +44,12 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   open String
   open TermRewritingSystemUtility
 
-  type term = Function of (string * term list) | Variable of (string * int)
-  type rule = (term * term)
-  type substitution = ((string * int) * term)
+  type funsym = string
+  type varsym = string * int
+  type term = Variable of varsym | Function of (funsym * term list)
+  type rule = term * term
+  type equation = term * term
+  type substitution = varsym * term
 
   exception ParseError
 
