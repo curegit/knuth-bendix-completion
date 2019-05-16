@@ -33,6 +33,8 @@ module type TermRewritingSystemSignature = sig
   val parseterm : string -> term
   val parsevar : string -> term
   val parsefun : string -> term
+  val parserule : string -> rule
+  val parseeq : string -> equation
 (*
   val printterm : term -> string
 *)
@@ -237,5 +239,21 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                            | chara when large chara -> parsefun exp
                            | chara when number chara -> parsefun exp
                            | chara -> raise ParseError
+
+  let rec parsetermtuplesub deli = function
+                                   | "" -> [""]
+                                   | str when length str < length deli -> [str]
+                                   | str when sub str 0 (length deli) = deli -> "" :: parsetermtuplesub deli (sub str (length deli) (length str - length deli))
+                                   | str -> match parsetermtuplesub deli (sub str 1 (length str - 1)) with
+                                            | [] -> raise ParseError
+                                            | s :: ss -> (sub str 0 1 ^ s) :: ss
+
+  let parsetermtuple deli exp = match parsetermtuplesub deli exp with
+                                | [l; r] -> (parseterm l, parseterm r)
+                                | _ -> raise ParseError
+
+  let parserule exp = parsetermtuple "->" exp
+
+  let parseeq exp = parsetermtuple "=" exp
 
 end
