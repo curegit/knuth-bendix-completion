@@ -32,4 +32,8 @@ module TermRewritingSystemUtility = struct
 
   let union xs ys = xs @ notwhere (member xs) ys
 
+  let some = function
+             | Some v -> true
+             | None -> false
+
 end
