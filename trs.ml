@@ -13,6 +13,7 @@ module type TermRewritingSystemSignature = sig
 
   val depth : term -> int
   val vars : term -> varsym list
+  val funs : term -> funsym list
   val subst : substitution list -> term -> term
   val collate : term -> term -> substitution list option
   val rewrite : rule list -> term -> term option
@@ -68,6 +69,13 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   and varslist = function
                  | [] -> []
                  | t :: ts -> union (vars t) (varslist ts)
+
+  let rec funs = function
+                 | Variable xi -> []
+                 | Function (f, ts) -> union [f] (funslist ts)
+  and funslist = function
+                 | [] -> []
+                 | t :: ts -> union (funs t) (funslist ts)
 
   let rec subst ss = function
                      | Variable xi as t -> (match find xi ss with
