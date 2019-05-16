@@ -13,6 +13,7 @@ module type TermRewritingSystemSignature = sig
 
   val height : term -> int
   val leaves : term -> int
+  val nodes : term -> int
   val vars : term -> varsym list
   val funs : term -> funsym list
   val subst : substitution list -> term -> term
@@ -71,8 +72,13 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   and leaveslist = function
                    | [] -> 0
                    | t :: ts -> leaves t + leaveslist ts
+
+  let rec nodes = function
                   | Variable xi -> 1
+                  | Function (f, ts) -> 1 + nodeslist ts
+  and nodeslist = function
                   | [] -> 0
+                  | t :: ts -> nodes t + nodeslist ts
 
   let rec vars = function
                  | Variable xi -> [xi]
