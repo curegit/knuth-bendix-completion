@@ -18,6 +18,7 @@ module type TermRewritingSystemSignature = sig
   val funs : term -> funsym list
   val subst : substitution list -> term -> term
   val collate : term -> term -> substitution list option
+  val contain : term -> term -> bool
   val rewrite : rule list -> term -> term option
 
   val lireduce : rule list -> term -> term option
@@ -111,6 +112,13 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                                      | (Some s, Some s') -> append s s'
                                                      | _ -> None)
                           | _ -> None
+
+  let rec contain l = function
+                      | Variable xi as r -> some (collate l r)
+                      | Function (f, ts) as r -> some (collate l r) || containlist l ts
+  and containlist l = function
+                      | [] -> false
+                      | t :: ts -> contain l t || containlist l ts
 
   let rec rewrite rs t = match rs with
                          | [] -> None
