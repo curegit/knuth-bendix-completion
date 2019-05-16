@@ -12,6 +12,7 @@ module type TermRewritingSystemSignature = sig
   exception ParseError
 
   val height : term -> int
+  val leaves : term -> int
   val vars : term -> varsym list
   val funs : term -> funsym list
   val subst : substitution list -> term -> term
@@ -62,6 +63,14 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   and heightlist = function
                    | [] -> 0
                    | t :: ts -> max (height t) (heightlist ts)
+
+  let rec leaves = function
+                   | Variable xi -> 1
+                   | Function (f, []) -> 1
+                   | Function (f, ts) -> leaveslist ts
+  and leaveslist = function
+                   | [] -> 0
+                   | t :: ts -> leaves t + leaveslist ts
                   | Variable xi -> 1
                   | [] -> 0
 
