@@ -63,7 +63,7 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                   | t :: ts -> max (depth t) (depthlist ts)
 
   let rec vars = function
-                 | Variable xi -> []
+                 | Variable xi -> [xi]
                  | Function (f, ts) -> varslist ts
   and varslist = function
                  | [] -> []
