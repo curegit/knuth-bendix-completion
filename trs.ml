@@ -208,7 +208,9 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 
   let small chara = let c = code chara in 97 <= c && c <= 122
 
-  let alphabet chara = number chara || large chara || small chara
+  let symbol chara = chara = '+' || chara = '*' || chara = '!' || chara = '?' || chara = '-' || chara = '/' || chara = '^' || chara = '$' || chara = '%' || chara = '&'
+
+  let alphabet chara = number chara || large chara || small chara || symbol chara
 
   let rec parsevarsym = function
                         | "" -> ""
@@ -271,6 +273,7 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                            | chara when small chara -> parsevar exp
                            | chara when large chara -> parsefun exp
                            | chara when number chara -> parsefun exp
+                           | chara when symbol chara -> parsefun exp
                            | chara -> raise ParseError
 
   let rec parsetermtuplesub deli = function
