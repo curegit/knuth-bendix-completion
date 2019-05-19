@@ -39,9 +39,9 @@ module type TermRewritingSystemSignature = sig
   val parsefun : string -> term
   val parserule : string -> rule
   val parseeq : string -> equation
-(*
-  val printterm : term -> string
-*)
+
+  val strterm : term -> string
+
 end
 
 module TermRewritingSystem : TermRewritingSystemSignature = struct
@@ -291,5 +291,15 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let parserule exp = parsetermtuple "->" exp
 
   let parseeq exp = parsetermtuple "=" exp
+
+  let rec strterm = function
+                    | Variable (x, i) when i = 0 -> x
+                    | Variable (x, i) -> x ^ "_" ^ string_of_int i
+                    | Function (f, []) -> f
+                    | Function (f, ts) -> f ^ "(" ^ strtermlist ts ^ ")"
+  and strtermlist = function
+                    | [] -> ""
+                    | [t] -> strterm t
+                    | t :: ts -> strterm t ^ ", " ^ strtermlist ts
 
 end
