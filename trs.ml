@@ -49,6 +49,8 @@ module type TermRewritingSystemSignature = sig
   val strterm : term -> string
   val strrule : rule -> string
   val streq : equation -> string
+  val strrules : ruleset -> string
+  val streqs : equationset -> string
 
 end
 
@@ -332,5 +334,17 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let strrule (l, r) = strterm l ^ " -> " ^ strterm r
 
   let streq (l, r) = strterm l ^ " = " ^ strterm r
+
+  let rec strtermtuplessub f = function
+                               | [] -> " }"
+                               | p :: ps -> ";" ^ "\n  " ^ f p ^ strtermtuplessub f ps
+
+  let strtermtuples f = function
+                        | [] -> "{ }"
+                        | p :: ps -> "{ " ^ f p ^ strtermtuplessub f ps
+
+  let strrules rs = strtermtuples strrule rs
+
+  let streqs eqs = strtermtuples streq eqs
 
 end
