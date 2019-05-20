@@ -8,6 +8,9 @@ module type TermRewritingSystemSignature = sig
   type rule = term * term
   type equation = term * term
   type substitution = varsym * term
+  type ruleset = rule list
+  type equationset = equation list
+  type substitutionset = substitution list
 
   exception ParseError
 
@@ -16,17 +19,17 @@ module type TermRewritingSystemSignature = sig
   val nodes : term -> int
   val vars : term -> varsym list
   val funs : term -> funsym list
-  val subst : substitution list -> term -> term
-  val collate : term -> term -> substitution list option
+  val subst : substitutionset -> term -> term
+  val collate : term -> term -> substitutionset option
   val contain : term -> term -> bool
-  val rewrite : rule list -> term -> term option
+  val rewrite : ruleset -> term -> term option
 
-  val lireduce : rule list -> term -> term option
-  val linorm : rule list -> term -> term
-  val loreduce : rule list -> term -> term option
-  val lonorm : rule list -> term -> term
-  val poreduce : rule list -> term -> term option
-  val ponorm : rule list -> term -> term
+  val lireduce : ruleset -> term -> term option
+  val linorm : ruleset -> term -> term
+  val loreduce : ruleset -> term -> term option
+  val lonorm : ruleset -> term -> term
+  val poreduce : ruleset -> term -> term option
+  val ponorm : ruleset -> term -> term
 
   val rename : varsym * varsym -> term -> term
   val uniquevar : rule * rule -> rule * rule
@@ -61,6 +64,9 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   type rule = term * term
   type equation = term * term
   type substitution = varsym * term
+  type ruleset = rule list
+  type equationset = equation list
+  type substitutionset = substitution list
 
   exception ParseError
 
