@@ -28,6 +28,9 @@ module type TermRewritingSystemSignature = sig
   val poreduce : rule list -> term -> term option
   val ponorm : rule list -> term -> term
 
+  val rename : varsym * varsym -> term -> term
+  val uniquevar : rule * rule -> rule * rule
+
   val var : string -> term
   val const : string -> term
   val func : string -> string list -> term
@@ -193,6 +196,22 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let rec ponorm rs t = match poreduce rs t with
                         | Some t' -> ponorm rs t'
                         | None -> t
+
+  let rec rename ((xi, xi') as r) = function
+                                    | Variable x when x = xi -> Variable xi'
+                                    | Variable x as t -> t
+                                    | Function (f, ts) -> Function (f, renamelist r ts)
+  and renamelist r = function
+                     | [] -> []
+                     | t :: ts -> rename r t :: renamelist r ts
+
+  let rec uniquevarstep xis (x, i) n ((l, r) as ru) = if member xis (x, n) then uniquevarstep xis (x, i) (n + 1) ru else (rename ((x, i), (x, n)) l, rename ((x, i), (x, n)) r)
+
+  let rec uniquevarsub xis ins ru = match ins with
+                                    | [] -> ru
+                                    | xi' :: xis' -> uniquevarsub xis xis' (uniquevarstep xis xi' 0 ru)
+
+  let uniquevar ((l, r) as ru, ((l', r') as ru')) = let uni = union (vars l) (vars r) in (ru, uniquevarsub uni (intersection uni (union (vars l') (vars r'))) ru')
 
   let var x = Variable (x, 0)
 

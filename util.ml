@@ -25,12 +25,14 @@ module TermRewritingSystemUtility = struct
   let rec append xs = function
                       | [] -> Some xs
                       | (k, v) as y :: ys -> match find k xs with
-                                        | Some x -> if x = v then append xs ys else None
-                                        | None -> match append xs ys with
-                                                  | Some zs -> Some (y :: zs)
-                                                  | None -> None
+                                             | Some x -> if x = v then append xs ys else None
+                                             | None -> match append xs ys with
+                                                       | Some zs -> Some (y :: zs)
+                                                       | None -> None
 
   let union xs ys = xs @ notwhere (member xs) ys
+
+  let intersection xs ys = filter (member ys) xs
 
   let some = function
              | Some v -> true
