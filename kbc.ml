@@ -5,6 +5,7 @@ module type KnuthBendixCompletionSignature = sig
   open TermRewritingSystem
 
   val unify : term -> term -> substitutionset option
+  val crpair : rule -> rule -> equationset
 
 end
 
@@ -32,5 +33,19 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
                                                          | None -> None
 
   let unify t t' = unifysub [] t' t
+
+  let rec crpairpart = function
+                       | Variable xi -> fun ru -> []
+                       | Function (f, ts) as t -> fun (l, r as ru) -> union (match unify t l with
+                                                                             | Some s -> [(r, s)]
+                                                                             | None -> [])
+                                                                            (map (fun (ts', s') -> Function (f, ts'), s') (crpairpartlist ts ru))
+  and crpairpartlist = function
+                       | [] -> fun ru -> []
+                       | t :: ts -> fun ru -> map (fun (t', s) -> t' :: ts, s) (crpairpart t ru) @ map (fun (ts', s) -> t :: ts', s) (crpairpartlist ts ru)
+
+  let crpairsub r tss = map (fun (t, s) -> subst s t, subst s r) tss
+
+  let crpair ru ru' = let (l, r as u), (l', r' as u') = uniquevar (ru, ru') in crpairsub r (crpairpart l u') @ crpairsub r' (crpairpart l' u)
 
 end
