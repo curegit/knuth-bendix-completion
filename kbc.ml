@@ -15,10 +15,10 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
   open TermRewritingSystemUtility
 
   let rec unifysub al = function
-                        | Variable xi as t -> (function
-                                               | Variable xi' when xi = xi' -> Some al
-                                               | t' when member (vars t') xi -> None
-                                               | t' -> Some ((xi, t') :: map (fun (x, a) -> (x, subst [(xi, t')] a)) al))
+                        | Variable xi -> (function
+                                          | Variable xi' when xi = xi' -> Some al
+                                          | t' when member (vars t') xi -> None
+                                          | t' -> Some ((xi, t') :: map (fun (x, a) -> (x, subst [(xi, t')] a)) al))
                         | Function (f, ts) as t -> function
                                                    | Variable xi' when member (vars t) xi' -> None
                                                    | Variable xi' -> Some ((xi', t) :: map (fun (x, a) -> (x, subst [xi', t] a)) al)
