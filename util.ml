@@ -34,6 +34,14 @@ module TermRewritingSystemUtility = struct
 
   let intersection xs ys = filter (member ys) xs
 
+  let rec distinct = function
+                     | [] -> []
+                     | x :: xs -> x :: notwhere ((=) x) (distinct xs)
+
+  let rec distinctswap = function
+                         | [] -> []
+                         | (x, y as t) :: xys -> t :: notwhere (fun t' -> t = t' || (y, x) = t') (distinctswap xys)
+
   let some = function
              | Some v -> true
              | None -> false
