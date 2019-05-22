@@ -337,7 +337,7 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 
   let rec strtermtuplessub f = function
                                | [] -> " }"
-                               | p :: ps -> ";" ^ "\n  " ^ f p ^ strtermtuplessub f ps
+                               | p :: ps -> "\n  " ^ f p ^ strtermtuplessub f ps
 
   let strtermtuples f = function
                         | [] -> "{ }"
