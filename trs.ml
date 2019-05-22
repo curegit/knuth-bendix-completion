@@ -52,6 +52,12 @@ module type TermRewritingSystemSignature = sig
   val strrules : ruleset -> string
   val streqs : equationset -> string
 
+  val printterm : term -> unit
+  val printrule : rule -> unit
+  val printeq : equation -> unit
+  val printrules : ruleset -> unit
+  val printeqs : equationset -> unit
+
 end
 
 module TermRewritingSystem : TermRewritingSystemSignature = struct
@@ -346,5 +352,15 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let strrules rs = strtermtuples strrule rs
 
   let streqs eqs = strtermtuples streq eqs
+
+  let printterm t = print_string (strterm t ^ "\n")
+
+  let printrule r = print_string (strrule r ^ "\n")
+
+  let printeq eq = print_string (streq eq ^ "\n")
+
+  let printrules rs = print_string (strrules rs ^ "\n")
+
+  let printeqs eqs = print_string (streqs eqs ^ "\n")
 
 end
