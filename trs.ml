@@ -64,7 +64,7 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
 
   open Char
   open String
-  open TermRewritingSystemUtility
+  open Utility
 
   type funsym = string
   type varsym = string * int

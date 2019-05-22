@@ -1,6 +1,6 @@
 (* ユーティリティ *)
 
-module TermRewritingSystemUtility = struct
+module Utility = struct
 
   let rec map f = function
                   | [] -> []

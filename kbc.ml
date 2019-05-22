@@ -11,8 +11,8 @@ end
 
 module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
 
+  open Utility
   open TermRewritingSystem
-  open TermRewritingSystemUtility
 
   let rec unifysub al = function
                         | Variable xi -> (function
