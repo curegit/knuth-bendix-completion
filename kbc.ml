@@ -32,7 +32,9 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
                                                          | Some s -> unifysublist s (map (subst s) ts) (map (subst s) ts')
                                                          | None -> None
 
-  let unify t t' = unifysub [] t' t
+  let unify t t' = match unifysub [] t t' with
+                   | Some s -> Some (reverse s)
+                   | None -> None
 
   let rec crpairpart = function
                        | Variable xi -> fun ru -> []

@@ -42,6 +42,11 @@ module TermRewritingSystemUtility = struct
                          | [] -> []
                          | (x, y as t) :: xys -> t :: notwhere (fun t' -> t = t' || (y, x) = t') (distinctswap xys)
 
+  let rec reverse xs = let rec inner = function
+                                       | [] -> fun r -> r
+                                       | x' :: xs' -> fun r -> inner xs' (x' :: r)
+                       in inner xs []
+
   let some = function
              | Some v -> true
              | None -> false
