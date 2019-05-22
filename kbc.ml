@@ -4,7 +4,7 @@ module type KnuthBendixCompletionSignature = sig
 
   open TermRewritingSystem
 
-  val unify : term -> term -> substitution list option
+  val unify : term -> term -> substitutionset option
 
 end
 
