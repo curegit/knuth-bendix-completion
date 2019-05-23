@@ -212,10 +212,10 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                         | Some t' -> ponorm rs t'
                         | None -> t
 
-  let rec rename ((xi, xi') as r) = function
-                                    | Variable x when x = xi -> Variable xi'
-                                    | Variable x as t -> t
-                                    | Function (f, ts) -> Function (f, renamelist r ts)
+  let rec rename (xi, xi' as r) = function
+                                  | Variable x when x = xi -> Variable xi'
+                                  | Variable x as t -> t
+                                  | Function (f, ts) -> Function (f, renamelist r ts)
   and renamelist r = function
                      | [] -> []
                      | t :: ts -> rename r t :: renamelist r ts
