@@ -220,13 +220,14 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                      | [] -> []
                      | t :: ts -> rename r t :: renamelist r ts
 
-  let rec uniquevarstep xis (x, i) n ((l, r) as ru) = if member xis (x, n) then uniquevarstep xis (x, i) (n + 1) ru else (rename ((x, i), (x, n)) l, rename ((x, i), (x, n)) r)
+  let rec uniquevarstep xis (x, i) n (l, r as ru) = if member xis (x, n) then uniquevarstep xis (x, i) (n + 1) ru
+                                                    else (rename ((x, i), (x, n)) l, rename ((x, i), (x, n)) r), substraction ((x, n) :: xis) [(x, i)]
 
   let rec uniquevarsub xis ins ru = match ins with
                                     | [] -> ru
-                                    | xi' :: xis' -> uniquevarsub xis xis' (uniquevarstep xis xi' 0 ru)
+                                    | xi' :: xis' -> let (ru', xis) = uniquevarstep xis xi' 0 ru in uniquevarsub xis xis' ru'
 
-  let uniquevar ((l, r) as ru, ((l', r') as ru')) = let uni = union (vars l) (vars r) in (ru, uniquevarsub uni (intersection uni (union (vars l') (vars r'))) ru')
+  let uniquevar (l, r as ru, (l', r' as ru')) = let uni = union (vars l) (vars r) in (ru, uniquevarsub uni (intersection uni (union (vars l') (vars r'))) ru')
 
   let rec decvarsubstep uni (x, i) n (l, r as ru) = if member uni (x, n) then decvarsubstep uni (x, i) (n + sgn i) ru
                                                     else if abs n < abs i then (rename ((x, i), (x, n)) l, rename ((x, i), (x, n)) r), substraction ((x, n) :: uni) [(x, i)]
