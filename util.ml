@@ -32,6 +32,8 @@ module Utility = struct
 
   let union xs ys = xs @ notwhere (member xs) ys
 
+  let substraction xs ys = notwhere (member ys) xs
+
   let intersection xs ys = filter (member ys) xs
 
   let rec distinct = function
@@ -50,5 +52,10 @@ module Utility = struct
   let some = function
              | Some v -> true
              | None -> false
+
+  let sgn = function
+            | n when n > 0 -> 1
+            | n when n < 0 -> -1
+            | n -> 0
 
 end

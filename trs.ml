@@ -33,6 +33,7 @@ module type TermRewritingSystemSignature = sig
 
   val rename : varsym * varsym -> term -> term
   val uniquevar : rule * rule -> rule * rule
+  val decvarsub : rule -> rule
 
   val var : string -> term
   val const : string -> term
@@ -226,6 +227,16 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                     | xi' :: xis' -> uniquevarsub xis xis' (uniquevarstep xis xi' 0 ru)
 
   let uniquevar ((l, r) as ru, ((l', r') as ru')) = let uni = union (vars l) (vars r) in (ru, uniquevarsub uni (intersection uni (union (vars l') (vars r'))) ru')
+
+  let rec decvarsubstep uni (x, i) n (l, r as ru) = if member uni (x, n) then decvarsubstep uni (x, i) (n + sgn i) ru
+                                                    else if abs n < abs i then (rename ((x, i), (x, n)) l, rename ((x, i), (x, n)) r), substraction ((x, n) :: uni) [(x, i)]
+                                                    else ru, uni
+
+  let rec decvarsubsub uni xis ru = match xis with
+                                    | [] -> ru
+                                    | xi' :: xis' -> let (ru', uni') = decvarsubstep uni xi' 0 ru in decvarsubsub uni' xis' ru'
+
+  let decvarsub (l, r as ru) = let uni = union (vars l) (vars r) in decvarsubsub uni (notwhere (fun (x, i) -> i = 0) uni) ru
 
   let var x = Variable (x, 0)
 
