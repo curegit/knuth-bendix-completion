@@ -14,6 +14,14 @@ module Utility = struct
                        | [] -> []
                        | x :: xs -> if p x then notwhere p xs else x :: notwhere p xs
 
+  let rec all p = function
+                  | [] -> true
+                  | x :: xs -> if p x then all p xs else false
+
+  let rec any p = function
+                  | [] -> false
+                  | x :: xs -> if p x then true else any p xs
+
   let rec member = function
                    | [] -> fun x -> false
                    | y :: ys -> fun x -> if x = y then true else member ys x

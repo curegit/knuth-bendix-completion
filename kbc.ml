@@ -4,8 +4,12 @@ module type KnuthBendixCompletionSignature = sig
 
   open TermRewritingSystem
 
+  type precedence = (funsym * int) list
+
   val unify : term -> term -> substitutionset option
   val crpair : rule -> rule -> equationset
+  val lpogreq : precedence -> term -> term -> bool
+  val lpogr : precedence -> term -> term -> bool
 
 end
 
@@ -13,6 +17,8 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
 
   open Utility
   open TermRewritingSystem
+
+  type precedence = (funsym * int) list
 
   let rec unifysub al = function
                         | Variable xi -> (function
@@ -49,5 +55,34 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
   let crpairsub r tss = map (fun (t, s) -> subst s t, subst s r) tss
 
   let crpair ru ru' = let (l, r as u), (l', r' as u') = uniquevar (ru, ru') in distinctswap (crpairsub r (crpairpart l u') @ crpairsub r' (crpairpart l' u))
+
+  let symgr pre x y = match (find x pre, find y pre) with
+                      | (Some i, Some j) -> i > j
+                      | _ -> false
+
+  let symeq pre x y = match (find x pre, find y pre) with
+                      | _ when x = y -> true
+                      | (Some i, Some j) -> i = j
+                      | _ -> false
+
+  let togr greq x y = greq x y && not (greq y x)
+
+  let toeq greq x y = greq x y && greq y x
+
+  let rec lexgreq greq = function
+                         | [] -> (function
+                                  | [] -> true
+                                  | y :: ys -> false)
+                         | x :: xs -> function
+                                      | [] -> true
+                                      | y :: ys -> if togr greq x y then true else if toeq greq x y then lexgreq greq xs ys else false
+
+  let rec lpogreq pre t t' = match (t, t') with
+                             | (t, Variable xi') -> member (vars t) xi'
+                             | (Variable xi, _) -> false
+                             | (Function (f, ts), Function (f', ts')) -> symeq pre f f' && lexgreq (lpogreq pre) ts ts' && all (lpogr pre t) ts' ||
+                                                                         symgr pre f f' && all (lpogr pre t) ts' ||
+                                                                         any (fun t'' -> lpogreq pre t'' t') ts
+  and lpogr pre t t' = togr (lpogreq pre) t t'
 
 end
