@@ -34,6 +34,8 @@ module type TermRewritingSystemSignature = sig
   val rename : varsym * varsym -> term -> term
   val uniquevar : rule * rule -> rule * rule
   val decvarsub : rule -> rule
+  val sameeq : equation -> equation -> bool
+  val distincteqs : equationset -> equationset
 
   val var : string -> term
   val const : string -> term
@@ -238,6 +240,12 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                     | xi' :: xis' -> let (ru', uni') = decvarsubstep uni xi' 0 ru in decvarsubsub uni' xis' ru'
 
   let decvarsub (l, r as ru) = let uni = union (vars l) (vars r) in decvarsubsub uni (notwhere (fun (x, i) -> i = 0) uni) ru
+
+  let sameeq (l, r) (l', r') = some (collate l l') && some (collate r r') && some (collate l' l) && some (collate r' r) || some (collate l r') && some (collate r l') && some (collate r' l) && some (collate l' r)
+
+  let rec distincteqs = function
+                        | [] -> []
+                        | eq :: eqs -> eq :: notwhere (sameeq eq) (distincteqs eqs)
 
   let var x = Variable (x, 0)
 

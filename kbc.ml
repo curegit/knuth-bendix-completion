@@ -116,9 +116,9 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
 
   let simplify (rs, eqs) = (rs, map (fun (l, r) -> (linorm rs l, linorm rs r)) eqs)
 
-  let delete (rs, eqs) = (rs, notwhere (fun (l, r) -> l = r) eqs)
+  let delete v (rs, eqs) = (rs, notwhere (fun (l, r) -> l = r) (if v then distincteqs eqs else eqs))
 
-  let kbcstep lpo step = delete (simplify (join (collapse (deduct (compose (orient lpo step))))))
+  let kbcstep v lpo step = delete v (simplify (join (collapse (deduct (compose (orient lpo step))))))
 
   let printin eqs = print_string "================ Input ==================\n"; printeqs eqs
 
@@ -127,16 +127,16 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
   let printout n rs = print_string "============== Complete "; print_int n; print_string " ===============\n"; printrules rs
 
   let rec kbcsub v = function
-                     | 0 -> fun lpo (rs, eqs as step) -> let step' = kbcstep lpo step in if v then printin eqs; kbcsub v 1 lpo step'
+                     | 0 -> fun lpo (rs, eqs as step) -> let step' = kbcstep v lpo step in if v then printin eqs; kbcsub v 1 lpo step'
                      | n -> fun lpo -> function
                                        | (rs, []) -> let rs' = map decvarsub rs in if v then printout n rs'; rs'
-                                       | (rs, eqs as step) -> let step' = kbcstep lpo step in if v then printstep n rs eqs; kbcsub v (n + 1) lpo step'
+                                       | (rs, eqs as step) -> let step' = kbcstep v lpo step in if v then printstep n rs eqs; kbcsub v (n + 1) lpo step'
 
-  let kbcf lpo eqs = kbcsub false 0 lpo (delete ([], eqs))
+  let kbcf lpo eqs = kbcsub false 0 lpo (delete false ([], eqs))
 
   let kbc pre eqs = kbcf (lpogr pre) eqs
 
-  let kbcfv lpo eqs = kbcsub true 0 lpo (delete ([], eqs))
+  let kbcfv lpo eqs = kbcsub true 0 lpo (delete false ([], eqs))
 
   let kbcv pre eqs = kbcfv (lpogr pre) eqs
 
