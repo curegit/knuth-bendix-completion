@@ -14,6 +14,10 @@ module Utility = struct
                        | [] -> []
                        | x :: xs -> if p x then notwhere p xs else x :: notwhere p xs
 
+  let rec fold f a = function
+                     | [] -> a
+                     | x :: xs -> fold f (f a x) xs
+
   let rec all p = function
                   | [] -> true
                   | x :: xs -> if p x then all p xs else false
