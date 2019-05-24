@@ -5,11 +5,12 @@ module type KnuthBendixCompletionSignature = sig
   open TermRewritingSystem
 
   type precedence = (funsym * int) list
+  type lexpathorder = term -> term -> bool
 
   val unify : term -> term -> substitutionset option
   val crpair : rule -> rule -> equationset
-  val lpogreq : precedence -> term -> term -> bool
-  val lpogr : precedence -> term -> term -> bool
+  val lpogreq : precedence -> lexpathorder
+  val lpogr : precedence -> lexpathorder
 
 end
 
@@ -19,6 +20,7 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
   open TermRewritingSystem
 
   type precedence = (funsym * int) list
+  type lexpathorder = term -> term -> bool
 
   let rec unifysub al = function
                         | Variable xi -> (function
