@@ -65,6 +65,10 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
 
   let crpairsub r tss = map (fun (t, s) -> subst s t, subst s r) tss
 
+  let rec distinctswap = function
+                         | [] -> []
+                         | (x, y as t) :: xys -> t :: notwhere (fun t' -> t = t' || (y, x) = t') (distinctswap xys)
+
   let crpair ru ru' = let (l, r as u), (l', r' as u') = uniquevar (ru, ru') in distinctswap (crpairsub r (crpairpart l u') @ crpairsub r' (crpairpart l' u))
 
   let symgr pre x y = match (find x pre, find y pre) with

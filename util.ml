@@ -48,14 +48,6 @@ module Utility = struct
 
   let intersection xs ys = filter (member ys) xs
 
-  let rec distinct = function
-                     | [] -> []
-                     | x :: xs -> x :: notwhere ((=) x) (distinct xs)
-
-  let rec distinctswap = function
-                         | [] -> []
-                         | (x, y as t) :: xys -> t :: notwhere (fun t' -> t = t' || (y, x) = t') (distinctswap xys)
-
   let rec reverse xs = let rec inner = function
                                        | [] -> fun r -> r
                                        | x' :: xs' -> fun r -> inner xs' (x' :: r)
