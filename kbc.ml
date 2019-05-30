@@ -131,10 +131,10 @@ module KnuthBendixCompletion : KnuthBendixCompletionSignature = struct
   let printout n rs = print_string "============== Complete "; print_int n; print_string " ===============\n"; printrules rs
 
   let rec kbcsub v = function
-                     | 0 -> fun lpo (rs, eqs as step) -> let step' = kbcstep v lpo step in if v then printin eqs; kbcsub v 1 lpo step'
+                     | 0 -> fun lpo (rs, eqs as step) -> if v then printin eqs; let step' = kbcstep v lpo step in kbcsub v 1 lpo step'
                      | n -> fun lpo -> function
                                        | (rs, []) -> let rs' = map decvarsub rs in if v then printout n rs'; rs'
-                                       | (rs, eqs as step) -> let step' = kbcstep v lpo step in if v then printstep n rs eqs; kbcsub v (n + 1) lpo step'
+                                       | (rs, eqs as step) -> if v then printstep n rs eqs; let step' = kbcstep v lpo step in kbcsub v (n + 1) lpo step'
 
   let kbcf lpo eqs = kbcsub false 0 lpo (delete false ([], eqs))
 
