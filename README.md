@@ -310,3 +310,249 @@ Function ("W", [Function ("S", [Function ("END", [])])])
 ## 群の公理の完備化
 
 群の公理を完備化した例を示す。
+`kbcv`関数を使って途中経過もすべて出力している。
+
+```ml
+# let precedence = [("I", 3); ("G", 2); ("E", 1)];;
+val precedence : (string * int) list = [("I", 3); ("G", 2); ("E", 1)]
+# let eqs = parseeqs ["G(E,x)=x"; "G(I(x),x)=E"; "G(G(x,y),z)=G(x,G(y,z))"];;
+val eqs : TermRewritingSystem.equationset =
+  [(Function ("G", [Function ("E", []); Variable ("x", 0)]),
+    Variable ("x", 0));
+   (Function ("G", [Function ("I", [Variable ("x", 0)]); Variable ("x", 0)]),
+    Function ("E", []));
+   (Function
+     ("G",
+      [Function ("G", [Variable ("x", 0); Variable ("y", 0)]);
+       Variable ("z", 0)]),
+    Function
+     ("G",
+      [Variable ("x", 0);
+       Function ("G", [Variable ("y", 0); Variable ("z", 0)])]))]
+# kbcv precedence eqs;;
+================ Input ==================
+{ G(E, x) = x
+  G(I(x), x) = E
+  G(G(x, y), z) = G(x, G(y, z)) }
+================ Step 1 =================
+{ G(I(x), x) = E
+  G(G(x, y), z) = G(x, G(y, z)) }
+
+{ G(E, x) -> x }
+================ Step 2 =================
+{ G(G(x, y), z) = G(x, G(y, z)) }
+
+{ G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 3 =================
+{ z = G(I(x_1), G(x_1, z)) }
+
+{ G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 4 =================
+{ G(I(I(x)), z_1) = G(x, z_1)
+  G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(I(I(x)), E) = x
+  G(I(E), x) = x }
+
+{ G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 5 =================
+{ G(I(I(x)), z_1) = G(x, z_1)
+  G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(I(I(x)), E) = x
+  G(I(I(E)), x) = x }
+
+{ G(I(E), x) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 6 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(x, E) = x
+  z = G(x, G(I(x), z))
+  E = G(x, I(x)) }
+
+{ G(I(I(x)), z_1) -> G(x, z_1)
+  G(I(E), x) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 7 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  z = G(x, G(I(x), z))
+  E = G(x, I(x))
+  x_1 = I(I(x_1))
+  E = I(E) }
+
+{ G(x, E) -> x
+  G(I(I(x)), z_1) -> G(x, z_1)
+  G(I(E), x) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 8 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  z = G(x, G(I(x), z))
+  E = G(x, I(x))
+  x_1 = I(I(x_1)) }
+
+{ I(E) -> E
+  G(x, E) -> x
+  G(I(I(x)), z_1) -> G(x, z_1)
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 9 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  z = G(x, G(I(x), z))
+  E = G(x, I(x)) }
+
+{ I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 10 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  z = G(x, G(I(x), z))
+  G(x_1, G(y, I(G(x_1, y)))) = E }
+
+{ G(x, I(x)) -> E
+  I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 11 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(x_1, G(y, I(G(x_1, y)))) = E
+  G(x_1, G(y, G(I(G(x_1, y)), z))) = z }
+
+{ G(x, G(I(x), z)) -> z
+  G(x, I(x)) -> E
+  I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 12 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(x_1, G(y, G(I(G(x_1, y)), z))) = z
+  x = G(y, I(G(I(x), y)))
+  I(x_1) = G(y, I(G(x_1, y)))
+  G(x, G(y_1, G(y, I(G(x, G(y_1, y)))))) = E }
+
+{ G(x_1, G(y, I(G(x_1, y)))) -> E
+  G(x, G(I(x), z)) -> z
+  G(x, I(x)) -> E
+  I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 13 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(x_1, G(y, G(I(G(x_1, y)), z))) = z
+  G(x, G(y_1, G(y, I(G(x, G(y_1, y)))))) = E
+  G(I(G(x, y_1)), x) = I(y_1)
+  G(y, G(I(G(x_1, y)), x_1)) = E
+  G(x, I(x_1)) = I(G(x_1, I(x)))
+  G(I(y), I(x_1)) = I(G(x_1, y))
+  G(x, G(y_1, I(G(x_1, G(x, y_1))))) = I(x_1)
+  G(z, I(G(x, G(y_1, z)))) = I(G(x, y_1))
+  G(I(x_1), z) = G(y, G(I(G(x_1, y)), z)) }
+
+{ G(y, I(G(x_1, y))) -> I(x_1)
+  G(x, G(I(x), z)) -> z
+  G(x, I(x)) -> E
+  I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+================ Step 14 =================
+{ G(I(G(x, y)), G(x, G(y, z_1))) = z_1
+  G(x_1, G(y, G(I(G(x_1, y)), z))) = z
+  G(x, G(y_1, G(y, I(G(x, G(y_1, y)))))) = E
+  G(I(G(x, y_1)), x) = I(y_1)
+  G(y, G(I(G(x_1, y)), x_1)) = E
+  G(I(y), I(x_1)) = I(G(x_1, y))
+  G(x, G(y_1, I(G(x_1, G(x, y_1))))) = I(x_1)
+  G(z, I(G(x, G(y_1, z)))) = I(G(x, y_1))
+  G(I(x_1), z) = G(y, G(I(G(x_1, y)), z))
+  I(G(x_1, G(x_1, I(x_2)))) = G(x_2, G(I(x_1), I(x_1)))
+  I(G(x_2, G(y, I(x)))) = G(x, I(G(x_2, y))) }
+
+{ I(G(x_1, I(x))) -> G(x, I(x_1))
+  G(y, I(G(x_1, y))) -> I(x_1)
+  G(x, G(I(x), z)) -> z
+  G(x, I(x)) -> E
+  I(I(x_1)) -> x_1
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x_1), G(x_1, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+============== Complete 15 ===============
+{ I(G(x, y)) -> G(I(y), I(x))
+  G(x, G(I(x), z)) -> z
+  G(x, I(x)) -> E
+  I(I(x)) -> x
+  I(E) -> E
+  G(x, E) -> x
+  G(I(x), G(x, z)) -> z
+  G(G(x, y), z) -> G(x, G(y, z))
+  G(I(x), x) -> E
+  G(E, x) -> x }
+- : TermRewritingSystem.ruleset =
+[(Function ("I", [Function ("G", [Variable ("x", 0); Variable ("y", 0)])]),
+  Function
+   ("G",
+    [Function ("I", [Variable ("y", 0)]);
+     Function ("I", [Variable ("x", 0)])]));
+ (Function
+   ("G",
+    [Variable ("x", 0);
+     Function ("G", [Function ("I", [Variable ("x", 0)]); Variable ("z", 0)])]),
+  Variable ("z", 0));
+ (Function ("G", [Variable ("x", 0); Function ("I", [Variable ("x", 0)])]),
+  Function ("E", []));
+ (Function ("I", [Function ("I", [Variable ("x", 0)])]), Variable ("x", 0));
+ (Function ("I", [Function ("E", [])]), Function ("E", []));
+ (Function ("G", [Variable ("x", 0); Function ("E", [])]), Variable ("x", 0));
+ (Function
+   ("G",
+    [Function ("I", [Variable ("x", 0)]);
+     Function ("G", [Variable ("x", 0); Variable ("z", 0)])]),
+  Variable ("z", 0));
+ (Function
+   ("G",
+    [Function ("G", [Variable ("x", 0); Variable ("y", 0)]);
+     Variable ("z", 0)]),
+  Function
+   ("G",
+    [Variable ("x", 0);
+     Function ("G", [Variable ("y", 0); Variable ("z", 0)])]));
+ (Function ("G", [Function ("I", [Variable ("x", 0)]); Variable ("x", 0)]),
+  Function ("E", []));
+ (Function ("G", [Function ("E", []); Variable ("x", 0)]), Variable ("x", 0))]
+```
