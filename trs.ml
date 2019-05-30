@@ -48,6 +48,8 @@ module type TermRewritingSystemSignature = sig
   val parsefun : string -> term
   val parserule : string -> rule
   val parseeq : string -> equation
+  val parserules : string list -> ruleset
+  val parseeqs : string list -> equationset
 
   val strterm : term -> string
   val strrule : rule -> string
@@ -346,6 +348,10 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
   let parserule exp = parsetermtuple "->" exp
 
   let parseeq exp = parsetermtuple "=" exp
+
+  let parserules l = map parserule l
+
+  let parseeqs l = map parseeq l
 
   let rec strterm = function
                     | Variable (x, i) when i = 0 -> x
