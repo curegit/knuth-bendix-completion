@@ -116,6 +116,80 @@ val rs : TermRewritingSystem.ruleset =
 `linorm`、`lonorm`及び`ponorm`は書き換え規則の集合と項を与えると正規形を求める関数である。
 それぞれ最左最内戦略、最左最外戦略、並列最外戦略に対応する。
 
+以下はフィボナッチの7を評価した例である。
+
+```ml
+# let rs = parserules ["Add(0,y)->y"; "Add(S(x),y)->S(Add(x, y))"; "Fib(0)->0";
+"Fib(S(0))->S(0)"; "Fib(S(S(x)))->Add(Fib(x),Fib(S(x)))"];;
+val rs : TermRewritingSystem.ruleset =
+  [(Function ("Add", [Function ("0", []); Variable ("y", 0)]),
+    Variable ("y", 0));
+   (Function
+     ("Add", [Function ("S", [Variable ("x", 0)]); Variable ("y", 0)]),
+    Function
+     ("S", [Function ("Add", [Variable ("x", 0); Variable ("y", 0)])]));
+   (Function ("Fib", [Function ("0", [])]), Function ("0", []));
+   (Function ("Fib", [Function ("S", [Function ("0", [])])]),
+    Function ("S", [Function ("0", [])]));
+   (Function ("Fib", [Function ("S", [Function ("S", [Variable ("x", 0)])])]),
+    Function
+     ("Add",
+      [Function ("Fib", [Variable ("x", 0)]);
+       Function ("Fib", [Function ("S", [Variable ("x", 0)])])]))]
+# printrules rs;;
+{ Add(0, y) -> y
+  Add(S(x), y) -> S(Add(x, y))
+  Fib(0) -> 0
+  Fib(S(0)) -> S(0)
+  Fib(S(S(x))) -> Add(Fib(x), Fib(S(x))) }
+- : unit = ()
+# let t = call "Fib" [nest "S" 7 (const "0")];;
+val t : TermRewritingSystem.term =
+  Function
+   ("Fib",
+    [Function
+      ("S",
+       [Function
+         ("S",
+          [Function
+            ("S",
+             [Function
+               ("S",
+                [Function
+                  ("S",
+                   [Function ("S", [Function ("S", [Function ("0", [])])])])])])])])])
+# let nf = linorm rs t;;
+val nf : TermRewritingSystem.term =
+  Function
+   ("S",
+    [Function
+      ("S",
+       [Function
+         ("S",
+          [Function
+            ("S",
+             [Function
+               ("S",
+                [Function
+                  ("S",
+                   [Function
+                     ("S",
+                      [Function
+                        ("S",
+                         [Function
+                           ("S",
+                            [Function
+                              ("S",
+                               [Function
+                                 ("S",
+                                  [Function
+                                    ("S",
+                                     [Function ("S", [Function ("0", [])])])])])])])])])])])])])])
+# printterm nf;;
+S(S(S(S(S(S(S(S(S(S(S(S(S(0)))))))))))))
+- : unit = ()
+```
+
 ### 等式
 
 等式は規則と同じく項の組で表す。
