@@ -46,6 +46,28 @@ F(x, y)
 - : unit = ()
 ```
 
+### 項生成ユーティリティ
+
+- `var s : string -> term` シンボルsの変数の項を返す
+- `const s : string -> term` シンボルsの無引数関数の項を返す
+- `func s ss : string -> string list -> term` 仮引数の変数のシンボルのリストがssである、シンボルsの関数の項を返す
+- `call s ts : string -> term list -> term` 引数の項のリストがtsである、シンボルsの関数の項を返す
+- `nest s n t : string -> int -> term -> term` 項tにシンボルがsである1引数関数をn回適用した項を返す
+
+```ml
+# let f4 = call "F" [nest "S" 4 (const "0")];;
+val f4 : TermRewritingSystem.term =
+  Function
+   ("F",
+    [Function
+      ("S",
+       [Function
+         ("S", [Function ("S", [Function ("S", [Function ("0", [])])])])])])
+# printterm f4;;
+F(S(S(S(S(0)))))
+- : unit = ()
+```
+
 ### 規則
 
 書き換え規則は項の組で表す。
