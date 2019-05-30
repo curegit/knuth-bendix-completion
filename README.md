@@ -252,7 +252,11 @@ val prece : (string * int) list = [("F", 2); ("G", 3); ("H", 1)]
 完備化に失敗すると例外が投げられる。
 アルゴリズムが停止しない可能性もある。
 
-以下はグラス（酒・ウィスキー・ビール）の交換問題を完備化した例である。
+#### グラス置き換えパズル
+
+以下はグラス置き換えパズル（酒・ウィスキー・ビール）の問題を完備化した例である。
+
+2つのグラス列が与えられ、等式に従ったグラス交換でもう一方と同じ列を作れるかどうかという問題である。
 
 ```ml
 # let precedence = [("B", 3);("S", 2);("W", 1)];;
@@ -281,6 +285,24 @@ val rs : TermRewritingSystem.ruleset =
   B(x) -> W(S(x))
   S(W(x)) -> W(x) }
 - : unit = ()
+```
+
+得られた書き換え規則を使って、例えば`SBW`と`SSB`の列を評価すると異なる正規形が求まる。
+正規形が異なるのでグラス交換で`SBW`と`SSB`を行き来することができないと証明される。
+
+```ml
+# let t1 = parseterm "S(B(W(END)))";;
+val t1 : TermRewritingSystem.term =
+  Function ("S", [Function ("B", [Function ("W", [Function ("END", [])])])])
+# let t2 = parseterm "S(S(B(END)))";;
+val t2 : TermRewritingSystem.term =
+  Function ("S", [Function ("S", [Function ("B", [Function ("END", [])])])])
+# linorm rs t1;;
+- : TermRewritingSystem.term =
+Function ("W", [Function ("W", [Function ("END", [])])])
+# linorm rs t2;;
+- : TermRewritingSystem.term =
+Function ("W", [Function ("S", [Function ("END", [])])])
 ```
 
 ## 群の公理の完備化
