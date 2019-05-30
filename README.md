@@ -175,23 +175,36 @@ val prece : (string * int) list = [("F", 2); ("G", 3); ("H", 1)]
 
 `kbcv`と`kbcfv`はそれぞれの関数の途中経過を標準出力するバージョンである（重複等式の削除など一部の冗長な処理も追加される）。
 
+完備化に失敗すると例外が投げられる。
+アルゴリズムが停止しない可能性もある。
+
+以下はグラス（酒・ウィスキー・ビール）の交換問題を完備化した例である。
+
 ```ml
-# let precedence = [("B", 2);("S", 1);("W", 1)];;
-val precedence : (string * int) list = [("B", 2); ("S", 1); ("W", 1)]
-# let eqs = parseeqs ["W(x)=S(W(x))"; "W(S(x))=B(x)"];;
+# let precedence = [("B", 3);("S", 2);("W", 1)];;
+val precedence : (string * int) list = [("B", 3); ("S", 2); ("W", 1)]
+# let eqs = parseeqs ["W(x)=S(W(x))"; "W(S(x))=B(x)"; "B(x)=B(B(x))"];;
 val eqs : TermRewritingSystem.equationset =
   [(Function ("W", [Variable ("x", 0)]),
     Function ("S", [Function ("W", [Variable ("x", 0)])]));
    (Function ("W", [Function ("S", [Variable ("x", 0)])]),
-    Function ("B", [Variable ("x", 0)]))]
+    Function ("B", [Variable ("x", 0)]));
+   (Function ("B", [Variable ("x", 0)]),
+    Function ("B", [Function ("B", [Variable ("x", 0)])]))]
 # let rs = kbc precedence eqs;;
 val rs : TermRewritingSystem.ruleset =
-  [(Function ("B", [Variable ("x", 0)]),
+  [(Function ("W", [Function ("W", [Function ("W", [Variable ("x", 0)])])]),
+    Function ("W", [Function ("W", [Variable ("x", 0)])]));
+   (Function ("W", [Function ("W", [Function ("S", [Variable ("x", 0)])])]),
+    Function ("W", [Function ("S", [Variable ("x", 0)])]));
+   (Function ("B", [Variable ("x", 0)]),
     Function ("W", [Function ("S", [Variable ("x", 0)])]));
    (Function ("S", [Function ("W", [Variable ("x", 0)])]),
     Function ("W", [Variable ("x", 0)]))]
 # printrules rs;;
-{ B(x) -> W(S(x))
+{ W(W(W(x))) -> W(W(x))
+  W(W(S(x))) -> W(S(x))
+  B(x) -> W(S(x))
   S(W(x)) -> W(x) }
 - : unit = ()
 ```
