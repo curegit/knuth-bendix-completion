@@ -116,7 +116,9 @@ val rs : TermRewritingSystem.ruleset =
 `linorm`、`lonorm`及び`ponorm`は書き換え規則の集合と項を与えると正規形を求める関数である。
 それぞれ最左最内戦略、最左最外戦略、並列最外戦略に対応する。
 
-以下はフィボナッチの7を評価した例である。
+#### フィボナッチ数
+
+以下は最左最内戦略でフィボナッチの7を評価した例である。
 
 ```ml
 # let rs = parserules ["Add(0,y)->y"; "Add(S(x),y)->S(Add(x, y))"; "Fib(0)->0";
