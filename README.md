@@ -18,6 +18,8 @@
 `parseterm`関数を使って文字列から項を作れる。
 小文字からはじまるシンボルは変数、大文字・数字・記号から始まるシンボルは関数と解釈される。
 
+使用できる記号は`+*!?-/^$%&`である。
+
 ```ml
 # parseterm "F(x, G(y, 0), +(H(z), 1))";;
 - : TermRewritingSystem.term =
@@ -106,6 +108,9 @@ val rs : TermRewritingSystem.rule list =
  Function ("G", [Function ("F", [Variable ("x", 0)])]))
 ```
 
+`streq`関数で書き換え規則の文字列表現を得る。
+`printeq`関数は書き換え規則を標準出力する。
+
 ### 等式の集合
 
 等式の集合は等式のリストで表す。
@@ -118,18 +123,46 @@ val rs : TermRewritingSystem.rule list =
  (Function ("B", []), Function ("C", []))]
 ```
 
-### 簡約順序
+### 簡約化順序
 
-停止性を保証する書き換え順序を与える。
+完備化のために停止性を保証する簡約化順序を与える必要がある。
 
-### 完備化関数
+関数のシンボルと整数値の組のリスト（優先順位を表すリスト）によってシンボル上の大小関係を定義する。
+
+```ml
+# let prece = [("F", 2);("G", 3);("H", 1)];;
+val prece : (string * int) list = [("F", 2); ("G", 3); ("H", 1)] 
+```
+
+### 完備化
 
 `kbc`と`kbcf`が完備化を行う関数である。
 `kbc`は優先順位を表すリストと等式集合を引数にとり、辞書式経路順序によって完備化を行う。
-`kbcf`は簡約順序を示す順序関数と等式集合を引数にとって完備化を行う。
+`kbcf`は簡約化順序を示す順序関数と等式集合を引数にとって完備化を行う。
 
 `kbcv`と`kbcfv`はそれぞれの関数の途中経過を標準出力するバージョンである。
 
+```ml
+# let prece = [("B", 2);("S", 1);("W", 1)];;
+val prece : (string * int) list = [("B", 2); ("S", 1); ("W", 1)]
+# let eqs = List.map parseeq ["W(x)=S(W(x))"; "W(S(x))=B(x)"];;
+val eqs : TermRewritingSystem.equation list =
+  [(Function ("W", [Variable ("x", 0)]),
+    Function ("S", [Function ("W", [Variable ("x", 0)])]));
+   (Function ("W", [Function ("S", [Variable ("x", 0)])]),
+    Function ("B", [Variable ("x", 0)]))]
+# let rs = kbc prece eqs;;
+val rs : TermRewritingSystem.ruleset =
+  [(Function ("B", [Variable ("x", 0)]),
+    Function ("W", [Function ("S", [Variable ("x", 0)])]));
+   (Function ("S", [Function ("W", [Variable ("x", 0)])]),
+    Function ("W", [Variable ("x", 0)]))]
+# printrules rs;;
+{ B(x) -> W(S(x))
+  S(W(x)) -> W(x) }
+- : unit = ()
+```
+
 ## 群の公理の完備化
 
-群の公理を完備化する例を示す。
+群の公理を完備化した例を示す。
