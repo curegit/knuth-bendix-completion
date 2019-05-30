@@ -130,8 +130,8 @@ val rs : TermRewritingSystem.ruleset =
  Function ("G", [Function ("F", [Variable ("x", 0)])]))
 ```
 
-`streq`関数で書き換え規則の文字列表現を得る。
-`printeq`関数は書き換え規則を標準出力する。
+`streq`関数で等式の文字列表現を得る。
+`printeq`関数は等式を標準出力する。
 
 ### 等式の集合
 
@@ -143,6 +143,17 @@ val rs : TermRewritingSystem.ruleset =
 val eqs : TermRewritingSystem.equationset =
   [(Function ("A", []), Function ("B", []));
    (Function ("B", []), Function ("C", []))]
+```
+`streqs`関数は等式の集合の文字列表現を得る。
+`printeqs`関数は等式の集合を標準出力する。
+
+```ml
+# streqs eqs;;
+- : string = "{ A = B\n  B = C }"
+# printeqs eqs;;
+{ A = B
+  B = C }
+- : unit = ()
 ```
 
 ### 簡約化順序
