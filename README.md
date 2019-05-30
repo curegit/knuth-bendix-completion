@@ -88,11 +88,11 @@ F(S(S(S(S(0)))))
 ### 規則の集合
 
 書き換え規則の集合は書き換え規則のリストで表す。
-文字列のリストを`parserule`で写像すると良い。
+`parserules`関数は規則の文字列のリストから規則の集合を返す。
 
 ```ml
-# let rs = List.map parserule ["A(0, y) -> y"; "A(S(x), y) -> S(A(x, y))"];;
-val rs : TermRewritingSystem.rule list =
+# let rs = parserules ["A(0, y) -> y"; "A(S(x), y) -> S(A(x, y))"];;
+val rs : TermRewritingSystem.ruleset =
   [(Function ("A", [Function ("0", []); Variable ("y", 0)]),
     Variable ("y", 0));
    (Function ("A", [Function ("S", [Variable ("x", 0)]); Variable ("y", 0)]),
@@ -136,13 +136,13 @@ val rs : TermRewritingSystem.rule list =
 ### 等式の集合
 
 等式の集合は等式のリストで表す。
-文字列のリストを`parseeq`で写像すると良い。
+`parseeqs`関数は等式の文字列のリストから等式の集合を返す。
 
 ```ml
-# List.map parseeq ["A = B"; "B = C"];;
-- : TermRewritingSystem.equation list =
-[(Function ("A", []), Function ("B", []));
- (Function ("B", []), Function ("C", []))]
+# let eqs = parseeqs ["A = B"; "B = C"];;
+val eqs : TermRewritingSystem.equationset =
+  [(Function ("A", []), Function ("B", []));
+   (Function ("B", []), Function ("C", []))]
 ```
 
 ### 簡約化順序
@@ -165,15 +165,15 @@ val prece : (string * int) list = [("F", 2); ("G", 3); ("H", 1)]
 `kbcv`と`kbcfv`はそれぞれの関数の途中経過を標準出力するバージョンである（重複等式の削除など一部の冗長な処理も追加される）。
 
 ```ml
-# let prece = [("B", 2);("S", 1);("W", 1)];;
-val prece : (string * int) list = [("B", 2); ("S", 1); ("W", 1)]
-# let eqs = List.map parseeq ["W(x)=S(W(x))"; "W(S(x))=B(x)"];;
-val eqs : TermRewritingSystem.equation list =
+# let precedence = [("B", 2);("S", 1);("W", 1)];;
+val precedence : (string * int) list = [("B", 2); ("S", 1); ("W", 1)]
+# let eqs = parseeqs ["W(x)=S(W(x))"; "W(S(x))=B(x)"];;
+val eqs : TermRewritingSystem.equationset =
   [(Function ("W", [Variable ("x", 0)]),
     Function ("S", [Function ("W", [Variable ("x", 0)])]));
    (Function ("W", [Function ("S", [Variable ("x", 0)])]),
     Function ("B", [Variable ("x", 0)]))]
-# let rs = kbc prece eqs;;
+# let rs = kbc precedence eqs;;
 val rs : TermRewritingSystem.ruleset =
   [(Function ("B", [Variable ("x", 0)]),
     Function ("W", [Function ("S", [Variable ("x", 0)])]));
