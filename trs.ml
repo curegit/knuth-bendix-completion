@@ -132,9 +132,11 @@ module TermRewritingSystem : TermRewritingSystemSignature = struct
                                               | Function (f', ts') -> if f = f' then collatelist ts ts' else None
   and collatelist ls rs = match (ls, rs) with
                           | ([], []) -> Some []
-                          | (t :: ts, t' :: ts') -> (match (collate t t', collatelist ts ts') with
-                                                     | (Some s, Some s') -> append s s'
-                                                     | _ -> None)
+                          | (t :: ts, t' :: ts') -> (match collate t t' with
+                                                     | Some s -> (match collatelist ts ts' with
+                                                                  | Some s' -> append s s'
+                                                                  | None -> None)
+                                                     | None -> None)
                           | _ -> None
 
   let rec contain l = function
