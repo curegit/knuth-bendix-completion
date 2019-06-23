@@ -1,0 +1,4 @@
+(library
+ (name knuth_bendix)
+ (flags ("-g" "-short-paths"))
+ )
