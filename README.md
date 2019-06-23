@@ -2,9 +2,23 @@
 
 クヌース・ベンディックス完備化アルゴリズムのOCaml実装
 
+## OPAM, Dune と utop
+
+### OPAM のインストール
+
+```sh
+sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)
+```
+
+### Dune と utop のインストール
+
+```sh
+opam install dune utop
+```
+
 ## 使い方
 
-ディレクトリに入ってビルドシステム dune コンパイルし，OCaml の対話環境 utop で読み込む。
+ディレクトリに入ってビルドシステム dune でコンパイルし，OCaml の対話環境 utop で読み込む。
 対話環境の設定ファイル .ocamlinit により，すべてのモジュールを読みこんで項書き換え系と完備化モジュールを open するように定義されている。
 
 ```sh
