@@ -15,11 +15,11 @@ let rec unifysub al = function
                                                  | Variable xi' when member (vars t) xi' -> None
                                                  | Variable xi' -> Some ((xi', t) :: map (fun (x, a) -> (x, subst [xi', t] a)) al)
                                                  | Function (f', ts') when f = f' -> unifysublist al ts ts'
-                                                 | t' -> None
+                                                 | _ -> None
 and unifysublist al ts ts' = match (ts, ts') with
                              | ([], []) -> Some al
-                             | (t :: ts, []) -> None
-                             | ([], t :: ts) -> None
+                             | (_ :: _, []) -> None
+                             | ([], _ :: _) -> None
                              | (t :: ts, t' :: ts') -> match unifysub al t t' with
                                                        | Some s -> unifysublist s (map (subst s) ts) (map (subst s) ts')
                                                        | None -> None
@@ -29,13 +29,13 @@ let unify t t' = match unifysub [] t t' with
                  | None -> None
 
 let rec crpairpart = function
-                     | Variable xi -> fun ru -> []
+                     | Variable _ -> fun _ -> []
                      | Function (f, ts) as t -> fun (l, r as ru) -> union (match unify t l with
                                                                            | Some s -> [(r, s)]
                                                                            | None -> [])
                                                                           (map (fun (ts', s') -> Function (f, ts'), s') (crpairpartlist ts ru))
 and crpairpartlist = function
-                     | [] -> fun ru -> []
+                     | [] -> fun _ -> []
                      | t :: ts -> fun ru -> map (fun (t', s) -> t' :: ts, s) (crpairpart t ru) @ map (fun (ts', s) -> t :: ts', s) (crpairpartlist ts ru)
 
 let crpairsub r tss = map (fun (t, s) -> subst s t, subst s r) tss
@@ -62,14 +62,14 @@ let toeq greq x y = greq x y && greq y x
 let rec lexgreq greq = function
                        | [] -> (function
                                 | [] -> true
-                                | y :: ys -> false)
+                                | _ :: _ -> false)
                        | x :: xs -> function
                                     | [] -> true
                                     | y :: ys -> if togr greq x y then true else if toeq greq x y then lexgreq greq xs ys else false
 
 let rec lpogreq pre t t' = match (t, t') with
                            | (t, Variable xi') -> member (vars t) xi'
-                           | (Variable xi, _) -> false
+                           | (Variable _, _) -> false
                            | (Function (f, ts), Function (f', ts')) -> symeq pre f f' && lexgreq (lpogreq pre) ts ts' && all (lpogr pre t) ts' ||
                                                                        symgr pre f f' && all (lpogr pre t) ts' ||
                                                                        any (fun t'' -> lpogreq pre t'' t') ts
@@ -89,7 +89,7 @@ let compose (r, rs, eqs) = (r, map (fun (l', r') -> (l', linorm (r :: rs) r')) r
 
 let deduct (r, rs, eqs) = (r, rs, fold (fun eqs' eqs'' -> union eqs' eqs'') eqs (map (crpair r) (r :: rs)))
 
-let collapse ((l, r as ru), rs, eqs) = (ru, notwhere (fun (l', r') -> contain l l') rs, eqs)
+let collapse (((l, _) as ru), rs, eqs) = (ru, notwhere (fun (l', _) -> contain l l') rs, eqs)
 
 let join (r, rs, eqs) = (r :: rs, eqs)
 
@@ -106,7 +106,7 @@ let printstep n rs eqs = print_string "================ Step "; print_int n; pri
 let printout n rs = print_string "============== Complete "; print_int n; print_string " ===============\n"; printrules rs
 
 let rec kbcsub v = function
-                   | 0 -> fun lpo (rs, eqs as step) -> if v then printin eqs; let step' = kbcstep v lpo step in kbcsub v 1 lpo step'
+                   | 0 -> fun lpo ((_, eqs) as step) -> if v then printin eqs; let step' = kbcstep v lpo step in kbcsub v 1 lpo step'
                    | n -> fun lpo -> function
                                      | (rs, []) -> let rs' = map decvarsub rs in if v then printout n rs'; rs'
                                      | (rs, eqs as step) -> if v then printstep n rs eqs; let step' = kbcstep v lpo step in kbcsub v (n + 1) lpo step'

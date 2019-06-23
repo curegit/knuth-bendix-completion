@@ -24,7 +24,7 @@ let rec any p = function
                 | x :: xs -> if p x then true else any p xs
 
 let rec member = function
-                 | [] -> fun x -> false
+                 | [] -> fun _ -> false
                  | y :: ys -> fun x -> if x = y then true else member ys x
 
 let rec find key = function
@@ -45,16 +45,16 @@ let substraction xs ys = notwhere (member ys) xs
 
 let intersection xs ys = filter (member ys) xs
 
-let rec reverse xs = let rec inner = function
-                                     | [] -> fun r -> r
-                                     | x' :: xs' -> fun r -> inner xs' (x' :: r)
+let reverse xs = let rec inner = function
+                                 | [] -> fun r -> r
+                                 | x' :: xs' -> fun r -> inner xs' (x' :: r)
                      in inner xs []
 
 let some = function
-           | Some v -> true
+           | Some _ -> true
            | None -> false
 
 let sgn = function
           | n when n > 0 -> 1
           | n when n < 0 -> -1
-          | n -> 0
+          | _ -> 0

@@ -15,36 +15,36 @@ type substitutionset = substitution list
 exception ParseError
 
 let rec height = function
-                 | Variable xi -> 1
-                 | Function (f, ts) -> 1 + heightlist ts
+                 | Variable _ -> 1
+                 | Function (_, ts) -> 1 + heightlist ts
 and heightlist = function
                  | [] -> 0
                  | t :: ts -> max (height t) (heightlist ts)
 
 let rec leaves = function
-                 | Variable xi -> 1
-                 | Function (f, []) -> 1
-                 | Function (f, ts) -> leaveslist ts
+                 | Variable _ -> 1
+                 | Function (_, []) -> 1
+                 | Function (_, ts) -> leaveslist ts
 and leaveslist = function
                  | [] -> 0
                  | t :: ts -> leaves t + leaveslist ts
 
 let rec nodes = function
-                | Variable xi -> 1
-                | Function (f, ts) -> 1 + nodeslist ts
+                | Variable _ -> 1
+                | Function (_, ts) -> 1 + nodeslist ts
 and nodeslist = function
                 | [] -> 0
                 | t :: ts -> nodes t + nodeslist ts
 
 let rec vars = function
                | Variable xi -> [xi]
-               | Function (f, ts) -> varslist ts
+               | Function (_, ts) -> varslist ts
 and varslist = function
                | [] -> []
                | t :: ts -> union (vars t) (varslist ts)
 
 let rec funs = function
-               | Variable xi -> []
+               | Variable _ -> []
                | Function (f, ts) -> union [f] (funslist ts)
 and funslist = function
                | [] -> []
@@ -59,7 +59,7 @@ let rec subst ss = function
 let rec collate l r = match l with
                       | Variable xi -> Some [(xi, r)]
                       | Function (f, ts) -> match r with
-                                            | Variable xi' -> None
+                                            | Variable _ -> None
                                             | Function (f', ts') -> if f = f' then collatelist ts ts' else None
 and collatelist ls rs = match (ls, rs) with
                         | ([], []) -> Some []
@@ -71,8 +71,8 @@ and collatelist ls rs = match (ls, rs) with
                         | _ -> None
 
 let rec contain l = function
-                    | Variable xi as r -> some (collate l r)
-                    | Function (f, ts) as r -> some (collate l r) || containlist l ts
+                    | Variable _ as r -> some (collate l r)
+                    | Function (_, ts) as r -> some (collate l r) || containlist l ts
 and containlist l = function
                     | [] -> false
                     | t :: ts -> contain l t || containlist l ts
@@ -84,7 +84,7 @@ let rec rewrite rs t = match rs with
                                          | None -> rewrite rs t
 
 let rec lireduce rs = function
-                      | Variable xi as t -> rewrite rs t
+                      | Variable _ as t -> rewrite rs t
                       | Function (f, ts) as t -> match lireducelist rs ts with
                                                  | Some ts' -> Some (Function (f, ts'))
                                                  | None -> match rewrite rs t with
@@ -104,15 +104,15 @@ let rec linormtop rs = function
                                                    | Some s -> linormsubst rs s r
                                                    | None -> linormtop rs rs' t
 and linormsubst rs s = function
-                       | Variable xi as t -> subst s t
+                       | Variable _ as t -> subst s t
                        | Function (f, ts) -> linormtop rs rs (Function (f, map (linormsubst rs s) ts))
 
 let rec linorm rs = function
-                    | Variable xi as t -> linormtop rs rs t
+                    | Variable _ as t -> linormtop rs rs t
                     | Function (f, ts) -> linormtop rs rs (Function (f, map (linorm rs) ts))
 
 let rec loreduce rs = function
-                      | Variable xi as t -> rewrite rs t
+                      | Variable _ as t -> rewrite rs t
                       | Function (f, ts) as t -> match rewrite rs t with
                                                  | Some t' -> Some t'
                                                  | None -> match loreducelist rs ts with
@@ -131,7 +131,7 @@ let rec lonorm rs t = match loreduce rs t with
                       | None -> t
 
 let rec poreduce rs = function
-                      | Variable xi as t -> rewrite rs t
+                      | Variable _ as t -> rewrite rs t
                       | Function (f, ts) as t -> match rewrite rs t with
                                                  | Some t' -> Some t'
                                                  | None -> match poreducelist rs ts with
@@ -151,7 +151,7 @@ let rec ponorm rs t = match poreduce rs t with
 
 let rec rename (xi, xi' as r) = function
                                 | Variable x when x = xi -> Variable xi'
-                                | Variable x as t -> t
+                                | Variable _ as t -> t
                                 | Function (f, ts) -> Function (f, renamelist r ts)
 and renamelist r = function
                    | [] -> []
@@ -174,7 +174,7 @@ let rec decvarsubsub uni xis ru = match xis with
                                   | [] -> ru
                                   | xi' :: xis' -> let (ru', uni') = decvarsubstep uni xi' 0 ru in decvarsubsub uni' xis' ru'
 
-let decvarsub (l, r as ru) = let uni = union (vars l) (vars r) in decvarsubsub uni (notwhere (fun (x, i) -> i = 0) uni) ru
+let decvarsub (l, r as ru) = let uni = union (vars l) (vars r) in decvarsubsub uni (notwhere (fun (_, i) -> i = 0) uni) ru
 
 let sameeq (l, r) (l', r') = some (collate l l') && some (collate r r') && some (collate l' l) && some (collate r' r) || some (collate l r') && some (collate r l') && some (collate r' l) && some (collate l' r)
 
@@ -226,36 +226,36 @@ let rec parseargexpssub = function
                                                            | ("", exps) -> ("", exps)
                                                            | _ -> raise ParseError)
                                             | (0, '(') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
-                                            | (0, chara) -> raise ParseError
+                                            | (0, _) -> raise ParseError
                                             | (1, ')') -> (match parseargexpssub (sub str 1 (length str - 1)) 0 with
                                                            | ("", []) -> ("", [])
-                                                           | (str', exps) -> raise ParseError)
+                                                           | (_, _) -> raise ParseError)
                                             | (1, ',') -> let (exp, exps) = parseargexpssub (sub str 1 (length str - 1)) 1 in ("", exp :: exps)
                                             | (n, '(') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n + 1) in (sub str 0 1 ^ str', exps)
                                             | (n, ')') -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) (n - 1) in (sub str 0 1 ^ str', exps)
-                                            | (n, chara) -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) n in (sub str 0 1 ^ str', exps)
+                                            | (n, _) -> let (str', exps) = parseargexpssub (sub str 1 (length str - 1)) n in (sub str 0 1 ^ str', exps)
 
 let parseargexps exp = match parseargexpssub exp 0 with
                        | ("", exps) -> exps
-                       | (str, exps) -> raise ParseError
+                       | (_, _) -> raise ParseError
 
 let rec parsevar = function
                    | "" -> raise ParseError
                    | exp -> match get exp 0 with
                             | ' ' -> parsevar (sub exp 1 (length exp - 1))
-                            | chara -> Variable (parsevarsym exp, 0)
+                            | _ -> Variable (parsevarsym exp, 0)
 
 let rec parsefun = function
                    | "" -> raise ParseError
                    | exp -> match get exp 0 with
                             | ' ' -> parsefun (sub exp 1 (length exp - 1))
-                            | chara -> Function (parsefunsym exp, parseargs exp)
+                            | _ -> Function (parsefunsym exp, parseargs exp)
 and parseargs = function
                 | "" -> []
                 | exp -> match get exp 0 with
                          | ' ' -> parseargs (sub exp 1 (length exp - 1))
                          | '(' -> map parseterm (parseargexps exp)
-                         | chara -> parseargs (sub exp 1 (length exp - 1))
+                         | _ -> parseargs (sub exp 1 (length exp - 1))
 and parseterm = function
                 | "" -> raise ParseError
                 | exp -> match get exp 0 with
@@ -264,7 +264,7 @@ and parseterm = function
                          | chara when large chara -> parsefun exp
                          | chara when number chara -> parsefun exp
                          | chara when symbol chara -> parsefun exp
-                         | chara -> raise ParseError
+                         | _ -> raise ParseError
 
 let rec parsetermtuplesub deli = function
                                  | "" -> [""]
