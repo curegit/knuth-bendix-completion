@@ -1,0 +1,2 @@
+open Knuth_bendix.Trs;;
+open Knuth_bendix.Kbc;;
