@@ -1,3 +1,4 @@
+(* Knuth-Bendix 完備化 *)
 open Util
 open Trs
 
