@@ -1,3 +1,9 @@
+ocamlc
+ocamlopt
+*.cmi
+*.cmo
+*.cma
+*.cmxa
 _build
 *.native
 *.byte
