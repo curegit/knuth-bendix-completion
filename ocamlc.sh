@@ -1,19 +1,18 @@
 #!/bin/sh -e
 cd "$(dirname "$0")"
-mkdir -p ocamlc
+mkdir -p _byte/obj
 ocamlc -c util.ml
-ocamlc -c trs.mli
-ocamlc -c trs.ml
-ocamlc -c kbc.mli
-ocamlc -c kbc.ml
-ocamlc -pack -o knuth_bendix.cmo util.cmo trs.cmo kbc.cmo
-ocamlc -a -o knuth_bendix.cma knuth_bendix.cmo
-#mv -f util.cmi ocamlc/util.cmi
-#mv -f util.cmo ocamlc/util.cmo
-#mv -f trs.cmi ocamlc/trs.cmi
-#mv -f trs.cmo ocamlc/trs.cmo
-#mv -f kbc.cmi ocamlc/kbc.cmi
-#mv -f kbc.cmo ocamlc/kbc.cmo
-mv -f knuth_bendix.cmi ocamlc/knuth_bendix.cmi
-#mv -f knuth_bendix.cmo ocamlc/knuth_bendix.cmo
-mv -f knuth_bendix.cma ocamlc/knuth_bendix.cma
+mv -f util.cmi _byte/obj/util.cmi
+mv -f util.cmo _byte/obj/util.cmo
+ocamlc -I _byte/obj trs.mli
+mv -f trs.cmi _byte/obj/trs.cmi
+ocamlc -I _byte/obj -c trs.ml
+mv -f trs.cmo _byte/obj/trs.cmo
+ocamlc -I _byte/obj kbc.mli
+mv -f kbc.cmi _byte/obj/kbc.cmi
+ocamlc -I _byte/obj -c kbc.ml
+mv -f kbc.cmo _byte/obj/kbc.cmo
+cd _byte
+ocamlc -pack -o obj/knuth_bendix.cmo obj/util.cmo obj/trs.cmo obj/kbc.cmo
+ocamlc -a -o knuth_bendix.cma obj/knuth_bendix.cmo
+cp -f obj/knuth_bendix.cmi knuth_bendix.cmi
