@@ -1,6 +1,6 @@
 #!/bin/sh
 cd "$(dirname "$0")" || exit
-rm -r -f _build
+dune clean
 rm -r -f _byte
 rm -r -f _native
 rm -f ./*.cmi
