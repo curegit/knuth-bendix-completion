@@ -1,2 +1,3 @@
 (library
- (name knuth_bendix))
+ (name knuth_bendix)
+ (public_name knuth_bendix))
