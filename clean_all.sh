@@ -6,6 +6,8 @@ rm -f ./*.cmi
 rm -f ./*.cmo
 rm -f ./*.cma
 rm -f ./*.o
+rm -f ./*.a
 rm -f ./*.cmx
 rm -f ./*.cmxa
+rm -f ./*.out
 which dune > /dev/null && dune clean
