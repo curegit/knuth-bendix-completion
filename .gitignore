@@ -1,9 +1,19 @@
+# OCaml
+_byte
+_native
+*.cmi
+*.cmo
+*.cma
+*.o
+*.cmx
+*.a
+*.cmxa
+*.out
+
+# Dune
 _build
-*~
-\.\#*
-\#*#
+*.exe
 *.native
 *.byte
 *.install
-_tests/
 .merlin
