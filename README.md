@@ -1,20 +1,12 @@
 # Knuth-Bendix Completion
 
-クヌース・ベンディックス完備化アルゴリズムのOCaml実装
+クヌース・ベンディックス完備化アルゴリズムの OCaml 実装
 
-## OPAM, Dune と utop
+## Dune 環境
 
-### OPAM のインストール
+## 純正 OCaml 環境
 
-```sh
-sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)
-```
 
-### Dune と utop のインストール
-
-```sh
-opam install dune utop
-```
 
 ## 使い方
 
@@ -24,6 +16,8 @@ opam install dune utop
 ```sh
 dune utop
 ```
+
+## ライブラリーの使い方
 
 ### 項
 
