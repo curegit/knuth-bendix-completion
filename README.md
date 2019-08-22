@@ -10,11 +10,24 @@
 
 ### Dune 環境
 
-`dune build` でライブラリをビルドする。
+`dune build` コマンドでライブラリを単純にビルドする。
+
+```sh
+dune build
+```
+
 OPAM にライブラリをインストールする場合は `dune install` を実行する。
+
+```sh
+dune install
+```
 
 utop が使える場合は `dune utop` コマンドによってライブラリをトップレベルで即座に試せる。
 対話環境の設定ファイル `.ocamlinit` により、すべてのモジュールを読みこんで項書き換え系と完備化モジュールを open するように定義されている。
+
+```sh
+dune utop
+```
 
 ### 純正 OCaml 環境
 
@@ -22,7 +35,7 @@ utop が使える場合は `dune utop` コマンドによってライブラリ�
 `build_ocamlc.sh` の手順に従うと `ocamlc` によるバイトコードライブラリをビルドできる。
 `build_ocamlopt.sh` の手順に従うと `ocamlopt` によるネイティブコードライブラリをビルドできる。
 
-純正のトップレベルでライブラリを使用する場合はバイトコードコンパイラで作られた `knuth_bendix.cma` と `knuth_bendix.cmi` を同一ディレクトリに用意して `#load` ディレクティブで読み込む。
+純正のトップレベルでライブラリを使用する場合はバイトコードコンパイラで作られた `knuth_bendix.cma` と `knuth_bendix.cmi` を用意して `#load` ディレクティブで読み込む。
 
 ```ml
 #load "knuth_bendix.cma";;
