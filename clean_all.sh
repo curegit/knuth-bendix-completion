@@ -10,4 +10,5 @@ rm -f ./*.a
 rm -f ./*.cmx
 rm -f ./*.cmxa
 rm -f ./*.out
+rm -f ./*.install
 which dune > /dev/null && dune clean
