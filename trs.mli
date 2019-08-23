@@ -1,5 +1,3 @@
-(* 項書換え系 *)
-
 type funsym = string
 type varsym = string * int
 type term = Variable of varsym | Function of (funsym * term list)

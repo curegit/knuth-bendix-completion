@@ -1,4 +1,3 @@
-(* Knuth-Bendix 完備化 *)
 open Trs
 
 type precedence = (funsym * int) list

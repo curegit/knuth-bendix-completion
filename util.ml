@@ -1,4 +1,3 @@
-(* ユーティリティ *)
 let rec map f = function
                 | [] -> []
                 | x :: xs -> f x :: map f xs

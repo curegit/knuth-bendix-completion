@@ -1,4 +1,3 @@
-(* 項書換え系 *)
 open Char
 open String
 open Util
