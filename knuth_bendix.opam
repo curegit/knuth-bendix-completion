@@ -8,5 +8,5 @@ homepage: "https://github.com/curegit/knuth-bendix-completion"
 bug-reports: "https://github.com/curegit/knuth-bendix-completion/issues"
 dev-repo: "git+https://github.com/curegit/knuth-bendix-completion.git"
 license: "MIT"
-depends: ["ocaml" "dune" {build}]
-build: ["dune" "build" "-p" name]
+depends: ["ocaml" "dune" {build & >= "1.10"}]
+build: ["dune" "build" "-p" name "-j" jobs]
