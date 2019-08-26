@@ -1,7 +1,7 @@
 opam-version: "2.0"
 name: "knuth_bendix"
 version: "1.0"
-synopsis: "An implementation of Knuth-Bendix completion in OCaml"
+synopsis: "An implementation of Knuth-Bendix completion algorithm"
 maintainer: "Cure Git <37978051+curegit@users.noreply.github.com>"
 authors: "Cure Git <37978051+curegit@users.noreply.github.com>"
 homepage: "https://github.com/curegit/knuth-bendix-completion"
