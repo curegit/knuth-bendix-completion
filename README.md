@@ -69,7 +69,7 @@ dune utop
 `parseterm` 関数を使って文字列から項を作れる。
 小文字からはじまるシンボルは変数、大文字・数字・記号から始まるシンボルは関数と解釈される。
 
-使用できる記号は`+*!?-/^$%&`である。
+使用できる記号は `+*!?-/^$%&` である。
 
 ```ml
 # parseterm "F(x, G(y, 0), +(H(z), 1))";;
@@ -99,11 +99,11 @@ F(x, y)
 
 #### 項生成ユーティリティ
 
-- `var s : string -> term` シンボルsの変数の項を返す
-- `const s : string -> term` シンボルsの無引数関数の項を返す
-- `func s ss : string -> string list -> term` 仮引数の変数のシンボルのリストがssである、シンボルsの関数の項を返す
-- `call s ts : string -> term list -> term` 引数の項のリストがtsである、シンボルsの関数の項を返す
-- `nest s n t : string -> int -> term -> term` 項tにシンボルがsである1引数関数をn回適用した項を返す
+- `var s : string -> term` シンボル s の変数の項を返す
+- `const s : string -> term` シンボル s の無引数関数の項を返す
+- `func s ss : string -> string list -> term` 仮引数の変数のシンボルのリストが ss である、シンボル s の関数の項を返す
+- `call s ts : string -> term list -> term` 引数の項のリストが ts である、シンボル s の関数の項を返す
+- `nest s n t : string -> int -> term -> term` 項 t にシンボルが s である1引数関数を n 回適用した項を返す
 
 ```ml
 # let f4 = call "F" [nest "S" 4 (const "0")];;
