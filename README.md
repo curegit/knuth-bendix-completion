@@ -613,3 +613,7 @@ val eqs : TermRewritingSystem.equationset =
   Function ("E", []));
  (Function ("G", [Function ("E", []); Variable ("x", 0)]), Variable ("x", 0))]
 ```
+
+## ライセンス
+
+[MIT](LICENSE)
