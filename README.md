@@ -26,10 +26,11 @@ OPAM にローカルソースのライブラリをとしてインストールす
 opam install .
 ```
 
-OPAM を介さずにインストールする場合は `dune install` を実行する。
+OPAM を介さずにインストールする場合はビルドの後に `dune install` を実行する。
 この場合のアンインストールは `dune uninstall` コマンドを使う。
 
 ```sh
+dune build
 dune install
 ```
 
