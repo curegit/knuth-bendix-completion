@@ -41,6 +41,12 @@ dune install
 dune utop
 ```
 
+utop で OPAM にインストールされたパッケージを読み込むには `-require` オプションを使う。
+
+```sh
+utop -require knuth_bendix
+```
+
 ### OCaml のみの環境
 
 例外的な方法として純正の OCaml コンパイラのみでビルドすることも可能である（ただし Dune による出力とは厳密には異なる）。
