@@ -312,12 +312,12 @@ let strrules rs = strtermtuples strrule rs
 
 let streqs eqs = strtermtuples streq eqs
 
-let printterm t = print_string (strterm t ^ "\n")
+let printterm t = print_endline (strterm t)
 
-let printrule r = print_string (strrule r ^ "\n")
+let printrule r = print_endline (strrule r)
 
-let printeq eq = print_string (streq eq ^ "\n")
+let printeq eq = print_endline (streq eq)
 
-let printrules rs = print_string (strrules rs ^ "\n")
+let printrules rs = print_endline (strrules rs)
 
-let printeqs eqs = print_string (streqs eqs ^ "\n")
+let printeqs eqs = print_endline (streqs eqs)

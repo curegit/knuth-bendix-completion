@@ -99,11 +99,11 @@ let delete v (rs, eqs) = (rs, notwhere (fun (l, r) -> l = r) (if v then distinct
 
 let kbcstep v lpo step = delete v (simplify (join (collapse (deduct (compose (orient lpo step))))))
 
-let printin eqs = print_string "================ Input ==================\n"; printeqs eqs
+let printin eqs = print_endline "================ Input =================="; printeqs eqs
 
-let printstep n rs eqs = print_string "================ Step "; print_int n; print_string " =================\n"; printeqs eqs; print_string "\n"; printrules rs
+let printstep n rs eqs = print_string "================ Step "; print_int n; print_endline " ================="; printeqs eqs; print_endline ""; printrules rs
 
-let printout n rs = print_string "============== Complete "; print_int n; print_string " ===============\n"; printrules rs
+let printout n rs = print_string "============== Complete "; print_int n; print_endline " ==============="; printrules rs
 
 let rec kbcsub v = function
                    | 0 -> fun lpo ((_, eqs) as step) -> if v then printin eqs; let step' = kbcstep v lpo step in kbcsub v 1 lpo step'
