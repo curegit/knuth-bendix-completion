@@ -8,9 +8,11 @@ trim_trailing_whitespace = true
 
 [*.ml]
 indent_style = space
+indent_size = 2
 
 [*.mli]
 indent_style = space
+indent_size = 2
 
 [*.sh]
 indent_style = space
