@@ -47,7 +47,7 @@ let intersection xs ys = filter (member ys) xs
 let reverse xs = let rec inner = function
                                  | [] -> fun r -> r
                                  | x' :: xs' -> fun r -> inner xs' (x' :: r)
-                     in inner xs []
+                   in inner xs []
 
 let some = function
            | Some _ -> true

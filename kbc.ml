@@ -33,7 +33,7 @@ let rec crpairpart = function
                      | Function (f, ts) as t -> fun (l, r as ru) -> union (match unify t l with
                                                                            | Some s -> [(r, s)]
                                                                            | None -> [])
-                                                                          (map (fun (ts', s') -> Function (f, ts'), s') (crpairpartlist ts ru))
+                                                                      (map (fun (ts', s') -> Function (f, ts'), s') (crpairpartlist ts ru))
 and crpairpartlist = function
                      | [] -> fun _ -> []
                      | t :: ts -> fun ru -> map (fun (t', s) -> t' :: ts, s) (crpairpart t ru) @ map (fun (ts', s) -> t :: ts', s) (crpairpartlist ts ru)
@@ -71,8 +71,8 @@ let rec lpogreq pre t t' = match (t, t') with
                            | (t, Variable xi') -> member (vars t) xi'
                            | (Variable _, _) -> false
                            | (Function (f, ts), Function (f', ts')) -> symeq pre f f' && lexgreq (lpogreq pre) ts ts' && all (lpogr pre t) ts' ||
-                                                                       symgr pre f f' && all (lpogr pre t) ts' ||
-                                                                       any (fun t'' -> lpogreq pre t'' t') ts
+                                                                         symgr pre f f' && all (lpogr pre t) ts' ||
+                                                                           any (fun t'' -> lpogreq pre t'' t') ts
 and lpogr pre t t' = togr (lpogreq pre) t t'
 
 let orientvalue (l, r) = max (nodes l) (nodes r)
