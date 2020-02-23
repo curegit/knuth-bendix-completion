@@ -18,8 +18,8 @@ let rec unifysub al = function
                                                  | _ -> None
 and unifysublist al ts ts' = match (ts, ts') with
                              | ([], []) -> Some al
-                             | (_ :: _, []) -> None
-                             | ([], _ :: _) -> None
+                             | (_, []) -> None
+                             | ([], _) -> None
                              | (t :: ts, t' :: ts') -> match unifysub al t t' with
                                                        | Some s -> unifysublist s (map (subst s) ts) (map (subst s) ts')
                                                        | None -> None
@@ -62,7 +62,7 @@ let toeq greq x y = greq x y && greq y x
 let rec lexgreq greq = function
                        | [] -> (function
                                 | [] -> true
-                                | _ :: _ -> false)
+                                | _ -> false)
                        | x :: xs -> function
                                     | [] -> true
                                     | y :: ys -> if togr greq x y then true else if toeq greq x y then lexgreq greq xs ys else false
