@@ -46,13 +46,17 @@ let rec distinctswap = function
 
 let crpair ru ru' = let (l, r as u), (l', r' as u') = uniquevar (ru, ru') in distinctswap (crpairsub r (crpairpart l u') @ crpairsub r' (crpairpart l' u))
 
-let symgr pre x y = match (find x pre, find y pre) with
-                    | (Some i, Some j) -> i > j
-                    | _ -> false
+let symgr pre x y = match find x pre with
+                    | Some i -> (match find y pre with
+                                 | Some j -> i > j
+                                 | None -> false)
+                    | None -> false
 
-let symeq pre x y = if x = y then true else match (find x pre, find y pre) with
-                                            | (Some i, Some j) -> i = j
-                                            | _ -> false
+let symeq pre x y = if x = y then true else match find x pre with
+                                            | Some i -> (match find y pre with
+                                                         | Some j -> i = j
+                                                         | None -> false)
+                                            | None -> false
 
 let togr greq x y = greq x y && not (greq y x)
 
