@@ -50,10 +50,9 @@ let symgr pre x y = match (find x pre, find y pre) with
                     | (Some i, Some j) -> i > j
                     | _ -> false
 
-let symeq pre x y = match (find x pre, find y pre) with
-                    | _ when x = y -> true
-                    | (Some i, Some j) -> i = j
-                    | _ -> false
+let symeq pre x y = if x = y then true else match (find x pre, find y pre) with
+                                            | (Some i, Some j) -> i = j
+                                            | _ -> false
 
 let togr greq x y = greq x y && not (greq y x)
 
