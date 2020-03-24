@@ -1,12 +1,11 @@
 opam-version: "2.0"
-name: "knuth_bendix"
 version: "1.1"
 synopsis: "An implementation of Knuth-Bendix completion algorithm"
-maintainer: "Cure Git <37978051+curegit@users.noreply.github.com>"
-authors: "Cure Git <37978051+curegit@users.noreply.github.com>"
+maintainer: "curegit"
+authors: "curegit"
 homepage: "https://github.com/curegit/knuth-bendix-completion"
 bug-reports: "https://github.com/curegit/knuth-bendix-completion/issues"
-dev-repo: "git+https://github.com/curegit/knuth-bendix-completion.git"
+dev-repo: "git://github.com/curegit/knuth-bendix-completion.git"
 license: "MIT"
-depends: ["ocaml" "dune" {build & >= "1.10"}]
+depends: ["dune" {build}]
 build: ["dune" "build" "-p" name "-j" jobs]
