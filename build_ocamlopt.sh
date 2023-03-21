@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 cd "$(dirname "$0")"
 mkdir -p _native/obj
 ocamlopt -for-pack Knuth_bendix -c util.ml
