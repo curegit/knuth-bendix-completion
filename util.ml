@@ -40,7 +40,7 @@ let rec append xs = function
 
 let union xs ys = xs @ notwhere (member xs) ys
 
-let substraction xs ys = notwhere (member ys) xs
+let subtraction xs ys = notwhere (member ys) xs
 
 let intersection xs ys = filter (member ys) xs
 

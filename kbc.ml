@@ -85,8 +85,8 @@ let choose eq eq' = if orientvalue eq > orientvalue eq' then eq' else eq
 let orient lpo (rs, eqs) = match filter (fun (l, r) -> lpo l r || lpo r l) eqs with
                            | [] -> raise CompletionFailed
                            | eq' :: eqs' -> match fold choose eq' eqs' with
-                                            | (l', r' as ru) when lpo l' r' -> ((l', r'), rs, substraction eqs [ru])
-                                            | (l', r' as ru) -> ((r', l'), rs, substraction eqs [ru])
+                                            | (l', r' as ru) when lpo l' r' -> ((l', r'), rs, subtraction eqs [ru])
+                                            | (l', r' as ru) -> ((r', l'), rs, subtraction eqs [ru])
 
 let compose (r, rs, eqs) = (r, map (fun (l', r') -> (l', linorm (r :: rs) r')) rs, eqs)
 
